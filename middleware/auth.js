@@ -1,6 +1,10 @@
 import jwt from 'jsonwebtoken';
 import pool from '../config/database.js';
 
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
 // Verify JWT token and attach user info to request
 const authenticate = async (req, res, next) => {
   try {
@@ -10,7 +14,7 @@ const authenticate = async (req, res, next) => {
       return res.status(401).json({ message: 'No token provided, authorization denied' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     // Get user from database
     const result = await pool.query(
@@ -64,7 +68,7 @@ const optionalAuth = async (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
     
     if (token) {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const result = await pool.query(
         'SELECT id, email, full_name, role, is_active FROM users WHERE id = $1',
         [decoded.userId]

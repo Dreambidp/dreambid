@@ -91,6 +91,26 @@ const buyingProcessSteps = [
   },
 ];
 
+// Sanitize embed code to prevent XSS attacks
+// Only allows specific iframe attributes and removes script tags
+const sanitizeEmbedCode = (code) => {
+  if (!code || typeof code !== 'string') return null;
+  
+  // Only allow iframe tags with specific attributes
+  const iframeRegex = /<iframe\s+(?:[^>]*\s)?src="([^"]*)"(?:[^>]*)?><\/iframe>/gi;
+  const matches = iframeRegex.exec(code);
+  
+  if (matches && matches[1]) {
+    // Validate the src is a safe URL (https only, no javascript:)
+    const src = matches[1];
+    if (!src.startsWith('javascript:') && (src.startsWith('http') || src.startsWith('//'))) {
+      return `<iframe src="${src}" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>`;
+    }
+  }
+  
+  return null;
+};
+
 function PropertyDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -696,11 +716,11 @@ function PropertyDetail() {
               );
             })()}
             {/* Map Section */}
-            {property?.map_embed_code ? (
+            {property?.map_embed_code && sanitizeEmbedCode(property.map_embed_code) ? (
               <div className="bg-midnight-900 border border-midnight-700 rounded-2xl shadow-sm p-6">
                 <h3 className="text-lg font-semibold text-text-primary mb-4">Location</h3>
                 <div className="aspect-video rounded-lg overflow-hidden">
-                  <div dangerouslySetInnerHTML={{ __html: property.map_embed_code }} />
+                  <div dangerouslySetInnerHTML={{ __html: sanitizeEmbedCode(property.map_embed_code) }} />
                 </div>
               </div>
             ) : center && (

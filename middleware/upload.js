@@ -5,19 +5,27 @@ import path from 'path';
 const storage = multer.memoryStorage();
 console.log('✓ Using memory storage for file uploads');
 
-// File filter
+// File filter with MIME type validation
 const fileFilter = (req, file, cb) => {
   const allowedImageTypes = /jpeg|jpg|png|gif|webp/;
+  const allowedImageMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
   const allowedPdfTypes = /pdf/;
+  const allowedPdfMimes = ['application/pdf'];
   
   if (file.fieldname === 'images' || file.fieldname === 'image' || file.fieldname === 'cover_image' || file.fieldname === 'photo') {
-    if (allowedImageTypes.test(path.extname(file.originalname).toLowerCase())) {
+    const extValid = allowedImageTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimeValid = allowedImageMimes.includes(file.mimetype);
+    
+    if (extValid && mimeValid) {
       cb(null, true);
     } else {
       cb(new Error('Only image files are allowed (jpeg, jpg, png, gif, webp)'), false);
     }
   } else if (file.fieldname === 'pdf') {
-    if (allowedPdfTypes.test(path.extname(file.originalname).toLowerCase())) {
+    const extValid = allowedPdfTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimeValid = allowedPdfMimes.includes(file.mimetype);
+    
+    if (extValid && mimeValid) {
       cb(null, true);
     } else {
       cb(new Error('Only PDF files are allowed'), false);

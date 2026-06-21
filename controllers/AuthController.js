@@ -3,7 +3,11 @@ import { validationResult } from 'express-validator';
 import User from '../models/User.js';
 import UserActivity from '../models/UserActivity.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
+const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRE = process.env.JWT_EXPIRE || '24h';
 
 class AuthController {
