@@ -50,6 +50,7 @@ function PropertyForm() {
   const [coverImageId, setCoverImageId] = useState(null);
   const [imagesToRemove, setImagesToRemove] = useState([]);
   const [validationErrors, setValidationErrors] = useState([]);
+  const [showErrorModal, setShowErrorModal] = useState(false);
 
   useEffect(() => {
     if (propertyData?.data?.data?.property) {
@@ -95,6 +96,8 @@ function PropertyForm() {
     if (!formData.title?.trim()) errors.push('Title is required');
     if (!formData.address?.trim()) errors.push('Address is required');
     if (!formData.property_type?.trim()) errors.push('Property Type is required');
+    if (!formData.zip_code?.trim()) errors.push('Zip Code is required');
+    if (formData.zip_code && formData.zip_code.length !== 6) errors.push('Zip Code must be exactly 6 digits');
     if (!formData.reserve_price) errors.push('Reserve Price is required');
     if (!formData.auction_date) errors.push('Auction Date is required');
     if (!formData.emd) errors.push('EMD Price is required');
@@ -198,9 +201,7 @@ function PropertyForm() {
     const errors = validateForm();
     if (errors.length > 0) {
       setValidationErrors(errors);
-      errors.forEach(error => toast.error(error));
-      // Scroll to top to show errors
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setShowErrorModal(true);
       return;
     }
 
@@ -409,11 +410,12 @@ function PropertyForm() {
             </div>
             <div>
               <label className="block text-sm font-medium text-text-primary mb-1">
-                Zip Code (6 digits)
+                Zip Code (6 digits) *
               </label>
               <input
                 type="text"
                 name="zip_code"
+                required
                 value={formData.zip_code}
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, '').slice(0, 6);
@@ -821,6 +823,49 @@ function PropertyForm() {
           </button>
         </div>
       </form>
+
+      {/* Error Modal */}
+      {showErrorModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-midnight-800 rounded-lg border border-red-700 shadow-2xl max-w-md w-full p-6">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="flex-shrink-0">
+                <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4v2m0 0v2m0-6v2" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.5a7.5 7.5 0 100 15 7.5 7.5 0 000-15z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-red-500">Missing Required Fields</h3>
+                <p className="text-gray-400 text-sm mt-1">Please fill in all mandatory fields before submitting:</p>
+              </div>
+            </div>
+
+            <div className="bg-red-900/20 border border-red-700/30 rounded-lg p-4 mb-6 max-h-60 overflow-y-auto">
+              <ul className="space-y-2">
+                {validationErrors.map((error, index) => (
+                  <li key={index} className="flex items-start gap-2">
+                    <span className="text-red-500 mt-1 flex-shrink-0">•</span>
+                    <span className="text-red-300 text-sm">{error}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowErrorModal(false);
+                  setValidationErrors([]);
+                }}
+                className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition-colors font-medium"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

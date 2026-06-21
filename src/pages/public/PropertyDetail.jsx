@@ -346,10 +346,12 @@ function PropertyDetail() {
         // Add property images
         if (property.images && property.images.length > 0) {
           property.images.forEach(img => {
-            const imgUrl = typeof img === 'object' ? (img.image_data || img.image_url) : img;
+            if (!img) return; // Skip null/undefined images
+            
+            const imgUrl = typeof img === 'object' ? (img.image_url || img.image_data) : img;
             // Only add if URL exists, is valid, and is not the cover image
-            if (imgUrl && imgUrl.trim() && imgUrl !== property.cover_image_url && !imgUrl.includes('data:image/stored')) {
-              allImages.push({ url: imgUrl, data: img.image_data });
+            if (imgUrl && String(imgUrl).trim() && imgUrl !== property.cover_image_url && !String(imgUrl).includes('data:image/stored')) {
+              allImages.push({ url: imgUrl, data: typeof img === 'object' ? img.image_data : null });
             }
           });
         }
@@ -587,10 +589,12 @@ function PropertyDetail() {
               // Add property images
               if (property.images && property.images.length > 0) {
                 property.images.forEach(img => {
-                  const imgUrl = typeof img === 'object' ? (img.image_data || img.image_url) : img;
+                  if (!img) return; // Skip null/undefined images
+                  
+                  const imgUrl = typeof img === 'object' ? (img.image_url || img.image_data) : img;
                   // Only add if URL exists, is valid, and is not the cover image
-                  if (imgUrl && imgUrl.trim() && imgUrl !== property.cover_image_url && !imgUrl.includes('data:image/stored')) {
-                    allImages.push({ url: imgUrl, data: img.image_data });
+                  if (imgUrl && String(imgUrl).trim() && imgUrl !== property.cover_image_url && !String(imgUrl).includes('data:image/stored')) {
+                    allImages.push({ url: imgUrl, data: typeof img === 'object' ? img.image_data : null });
                   }
                 });
               }
