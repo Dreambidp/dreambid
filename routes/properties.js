@@ -654,6 +654,11 @@ router.put('/:id', authenticate, authorize('admin', 'staff'), uploadImages, asyn
       updates.push(`state = $${paramCount}`);
       values.push(state);
     }
+    if (zip_code !== undefined) {
+      paramCount++;
+      updates.push(`zip_code = $${paramCount}`);
+      values.push(zip_code || null);
+    }
     if (latitude !== undefined) {
       paramCount++;
       updates.push(`latitude = $${paramCount}`);
