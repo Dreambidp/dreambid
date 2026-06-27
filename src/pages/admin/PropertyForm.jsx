@@ -96,7 +96,6 @@ function PropertyForm() {
     if (!formData.title?.trim()) errors.push('Title is required');
     if (!formData.address?.trim()) errors.push('Address is required');
     if (!formData.property_type?.trim()) errors.push('Property Type is required');
-    if (!formData.zip_code?.trim()) errors.push('Zip Code is required');
     if (formData.zip_code && formData.zip_code.length !== 6) errors.push('Zip Code must be exactly 6 digits');
     if (!formData.reserve_price) errors.push('Reserve Price is required');
     if (!formData.auction_date) errors.push('Auction Date is required');
@@ -410,7 +409,7 @@ function PropertyForm() {
             </div>
             <div>
               <label className="block text-sm font-medium text-text-primary mb-1">
-                Zip Code (6 digits) *
+                Zip Code (6 digits)
               </label>
               <input
                 type="text"
