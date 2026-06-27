@@ -659,7 +659,6 @@ function PropertyForm() {
                   className="w-full px-3 py-2 border border-midnight-600 bg-midnight-700 rounded-md focus:outline-none focus:ring-2 focus:ring-gold"
                 >
                   <option value="upcoming">Upcoming</option>
-                  <option value="active">Active</option>
                   <option value="expired">Expired</option>
                   <option value="sold">Sold</option>
                   <option value="cancelled">Cancelled</option>
