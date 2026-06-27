@@ -508,8 +508,9 @@ function Home() {
                     : null);
 
                 return (
-                <div key={property.id} className="group card overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full">
-                  <div className="relative h-48 md:h-64 overflow-hidden bg-midnight-800">
+                <div key={property.id} className="card overflow-hidden hover:shadow-2xl transition-all duration-300">
+                  {/* Image Section */}
+                  <div className="relative h-56 bg-midnight-800 overflow-hidden">
                     {imageUrl ? (
                       <img
                         src={getImageUrl(imageUrl)}
@@ -525,6 +526,11 @@ function Home() {
                       </div>
                     )}
                     
+                    {/* Property ID Badge */}
+                    <div className="absolute top-4 left-4 bg-gold text-midnight-950 px-3 py-1 rounded-full text-xs font-semibold">
+                      P{property.id}
+                    </div>
+
                     {/* Wishlist Button */}
                     <button
                       onClick={() => {
@@ -538,49 +544,60 @@ function Home() {
                       </svg>
                     </button>
                   </div>
-                  <div className="p-4 md:p-6 pb-0 flex flex-col h-full">
-                    <div className="flex-grow">
-                      <h3 className="text-lg md:text-xl font-bold text-white mb-2 line-clamp-2">
-                        {property.title}
-                      </h3>
-                      <p className="text-text-secondary text-xs md:text-sm mb-3">
-                        📍 {property.city}, {property.state} • {property.area_sqft || property.property_size || 'N/A'} {property.area_unit || 'sq.ft'}
-                      </p>
-                      <div className="space-y-2">
+
+                  {/* Content Section */}
+                  <div className="p-6">
+                    {/* Title */}
+                    <h3 className="text-lg md:text-2xl font-bold text-text-primary mb-3 line-clamp-2 min-h-14">
+                      {property.title}
+                    </h3>
+
+                    {/* Location */}
+                    <p className="text-text-secondary text-xs md:text-sm mb-4">
+                      📍 {property.city}, {property.state}
+                    </p>
+
+                    {/* Property Details Grid */}
+                    <div className="space-y-3 mb-4 pb-4 border-b border-midnight-700">
+                      <div>
+                        <p className="text-text-secondary text-xs font-semibold uppercase tracking-wide mb-1">Reserve Price</p>
+                        <p className="text-lg md:text-2xl font-bold text-gold">
+                          ₹{parseFloat(property.reserve_price).toLocaleString('en-IN')}
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 text-xs">
                         <div>
-                          <p className="text-text-secondary text-xs font-semibold uppercase tracking-wide mb-1">Reserve Price</p>
-                          <p className="text-lg md:text-2xl font-bold text-gold">₹{parseFloat(property.reserve_price).toLocaleString('en-IN')}</p>
+                          <p className="text-text-secondary mb-1">Application Date</p>
+                          <p className="font-semibold text-text-primary">
+                            {property.auction_date 
+                              ? new Date(property.auction_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+                              : 'N/A'
+                            }
+                          </p>
                         </div>
-                        <div className="flex justify-between text-xs pt-2 border-t border-midnight-700">
-                          <div>
-                            <p className="text-text-secondary">Application Date</p>
-                            <p className="text-text-primary font-medium">
-                              {property.auction_date 
-                                ? new Date(property.auction_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-                                : 'N/A'
-                              }
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-text-secondary">Possession Status</p>
-                            <p className="text-text-primary font-medium">{property.possession_type || 'Physical'}</p>
-                          </div>
+                        <div>
+                          <p className="text-text-secondary mb-1">Possession Status</p>
+                          <p className="font-semibold text-text-primary">Physical</p>
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-2 md:gap-3 mt-3 md:mt-4 pt-3 md:pt-4 border-t border-midnight-700">
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3">
                       <Link
                         to={`/properties/${property.id}`}
-                        className="flex-1 btn-primary text-center text-xs md:text-sm py-3 md:py-3 whitespace-nowrap"
+                        className="flex-1 px-4 py-3 bg-gold text-midnight-950 text-center rounded-btn hover:bg-gold-hover transition font-semibold text-sm btn-primary"
                       >
                         View Details
                       </Link>
                       <button
                         onClick={() => shareProperty(property)}
-                        className="px-3 md:px-4 py-3 md:py-3 bg-status-live text-white rounded-btn hover:bg-green-600 transition-all"
+                        className="px-4 py-3 bg-status-live text-white rounded-btn hover:bg-green-600 transition flex items-center justify-center gap-2"
                         title="Share on WhatsApp"
                       >
                         <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
+                        Share
                       </button>
                     </div>
                   </div>
