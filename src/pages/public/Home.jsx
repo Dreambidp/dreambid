@@ -538,7 +538,7 @@ function Home() {
                       </svg>
                     </button>
                   </div>
-                  <div className="p-4 md:p-6 flex flex-col h-full">
+                  <div className="p-4 md:p-6 pb-0 flex flex-col h-full">
                     <div className="flex-grow">
                       <h3 className="text-lg md:text-xl font-bold text-white mb-2 line-clamp-2">
                         {property.title}
