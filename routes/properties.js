@@ -674,8 +674,26 @@ router.put('/:id', authenticate, authorize('admin', 'staff'), uploadImages, asyn
       paramCount++;
       updates.push(`auction_date = $${paramCount}`);
       values.push(new Date(auction_date));
-    }
-    if (status !== undefined) {
+      
+      // Automatically determine status based on auction_date
+      const auctionDate = new Date(auction_date);
+      const now = new Date();
+      const calculatedStatus = auctionDate <= now ? 'active' : 'upcoming';
+      
+      // Override status with auto-calculated value
+      const statusIndex = updates.findIndex(u => u.includes('status ='));
+      if (statusIndex !== -1) {
+        // Remove existing status update
+        updates.splice(statusIndex, 1);
+        values.splice(statusIndex, 1);
+        paramCount--;
+      }
+      
+      paramCount++;
+      updates.push(`status = $${paramCount}`);
+      values.push(calculatedStatus);
+    } else if (status !== undefined) {
+      // Only use custom status if auction_date is not being updated
       paramCount++;
       updates.push(`status = $${paramCount}`);
       values.push(status);
