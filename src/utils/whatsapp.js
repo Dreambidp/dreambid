@@ -16,6 +16,7 @@ const formatIndianPhone = (phone) => {
 export const shareProperty = (property) => {
   const title = property.title || 'Property';
   const location = [property.city, property.state].filter(Boolean).join(', ');
+  const fullTitle = `${title} in ${location}`;
   const reservePrice = property.reserve_price ? `₹${parseFloat(property.reserve_price).toLocaleString('en-IN')}` : 'N/A';
   const auctionDate = property.auction_date
     ? new Date(property.auction_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -27,7 +28,7 @@ export const shareProperty = (property) => {
   const whatsappDisplay = WHATSAPP_NUMBER ? formatIndianPhone(WHATSAPP_NUMBER) : '91-9999 999 999';
   const supportPhone = formatIndianPhone(SUPPORT_PHONE);
 
-  const message = `${title}\nReserve Price: ${reservePrice}\nApplication Deadline: ${auctionDate}\n\nProperty Link for complete details: ${propertyUrl}\nand fill the Expression of Interest form to express your interest.\n\nNearest Google Map Location: ${mapLink}\n\nCall: ${supportPhone} or WhatsApp: ${whatsappDisplay} for more details.\n\nJoin our WhatsApp Communities: https://hecta.co/community`;
+  const message = `${fullTitle}\nReserve Price: ${reservePrice}\nApplication Deadline: ${auctionDate}\n\nProperty Link for complete details: ${propertyUrl} and fill the Expression of Interest form to express your interest.\n\nNearest Google Map Location: ${mapLink}\n\nCall: ${supportPhone} or WhatsApp: ${whatsappDisplay} for more details`;
   const url = `${WHATSAPP_API_URL}?text=${encodeURIComponent(message)}`;
   window.open(url, '_blank');
 };
