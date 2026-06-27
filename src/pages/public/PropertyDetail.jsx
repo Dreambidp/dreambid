@@ -507,7 +507,7 @@ function PropertyDetail() {
                   )}
                   <div className="flex justify-between">
                     <span className="text-sm text-text-secondary">Area</span>
-                    <span className="text-sm font-medium text-text-primary">{property.area && property.area !== 0 ? `${formatNumber(property.area)} ${property.area_unit || 'sq.ft.'}` : 'NA'}</span>
+                    <span className="text-sm font-medium text-text-primary">{(property.area || property.area_sqft) && (property.area || property.area_sqft) !== 0 ? `${formatNumber(property.area || property.area_sqft)} ${property.area_unit || 'sq.ft.'}` : 'NA'}</span>
                   </div>
                   {property.built_up_area && (
                     <div className="flex justify-between">
@@ -910,7 +910,7 @@ function PropertyDetail() {
                                 <span className="text-text-secondary">
                                   <span className="font-medium text-text-primary">{Math.round(prop.area_sqft)}</span> {prop.area_unit || 'sq.ft.'}
                                 </span>
-                              )}}
+                              )}
                             </div>
                             <p className="text-sm font-bold text-text-primary">
                               ₹{prop.reserve_price ? prop.reserve_price.toLocaleString() : 'N/A'}

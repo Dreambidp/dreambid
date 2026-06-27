@@ -50,5 +50,7 @@ Thumbs.db
 # Mobile build files
 android/
 ios/
+*.keystore
+*.jks
 dreambid-release.keystore
 .gradle/

@@ -121,7 +121,7 @@ function Shortlisted() {
             {property.title}
           </h3>
           <p className="text-text-secondary text-xs md:text-sm mb-3">
-            📍 {property.city}, {property.state} • {property.area && property.area !== 0 ? `${Math.round(property.area)} ${property.area_unit || 'sq.ft'}` : 'NA'}
+            📍 {property.city}, {property.state} • {(property.area || property.area_sqft) && (property.area || property.area_sqft) !== 0 ? `${Math.round(property.area || property.area_sqft)} ${property.area_unit || 'sq.ft'}` : 'NA'}
           </p>
           <div className="space-y-2">
             <div>

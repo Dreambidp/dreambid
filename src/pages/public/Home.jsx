@@ -540,7 +540,7 @@ function Home() {
                   </div>
                   <div className="p-4 md:p-6 flex flex-col h-full">
                     <div className="flex-grow">
-                      <h3 className="text-lg md:text-xl font-bold text-white mb-2 line-clamp-2 min-h-14">
+                      <h3 className="text-lg md:text-xl font-bold text-white mb-2 line-clamp-2">
                         {property.title}
                       </h3>
                       <p className="text-text-secondary text-xs md:text-sm mb-3">
@@ -568,7 +568,7 @@ function Home() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex gap-2 md:gap-3 mt-4 md:mt-6 pt-4 md:pt-6 border-t border-midnight-700">
+                    <div className="flex gap-2 md:gap-3 mt-3 md:mt-4 pt-3 md:pt-4 border-t border-midnight-700">
                       <Link
                         to={`/properties/${property.id}`}
                         className="flex-1 btn-primary text-center text-xs md:text-sm py-3 md:py-3 whitespace-nowrap"

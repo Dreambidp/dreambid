@@ -7,6 +7,38 @@ import { executeWithRetry } from '../utils/dbRetry.js';
 
 const router = express.Router();
 
+const isValidImageUrl = (url) => {
+  if (!url || typeof url !== 'string') return false;
+  return /^(https?:\/\/|\/)/i.test(url);
+};
+
+const formatPropertyImages = (imagesRows = [], { includeImageData = false } = {}) => {
+  return imagesRows.map((img) => {
+    const formattedImage = {
+      id: img.id,
+      image_url: img.image_url,
+      image_order: img.image_order,
+      is_cover: img.is_cover,
+    };
+
+    const hasBinaryData = img.image_data;
+    const shouldForceData = hasBinaryData && (!isValidImageUrl(formattedImage.image_url) || formattedImage.image_url === 'data:image/stored');
+
+    if ((includeImageData || shouldForceData) && hasBinaryData) {
+      const imageData = Buffer.isBuffer(img.image_data)
+        ? `data:${img.image_mime_type || 'image/jpeg'};base64,${img.image_data.toString('base64')}`
+        : img.image_data;
+
+      formattedImage.image_data = imageData;
+      if (!isValidImageUrl(formattedImage.image_url) || formattedImage.image_url === 'data:image/stored') {
+        formattedImage.image_url = imageData;
+      }
+    }
+
+    return formattedImage;
+  });
+};
+
 // Helper function to update auction status
 const updateAuctionStatus = async () => {
   const now = new Date();
@@ -93,8 +125,10 @@ router.get('/', [
       sort_by,
       page = 1,
       limit = 20,
-      is_featured
+      is_featured,
+      include_image_data
     } = req.query;
+    const includeImageData = String(include_image_data || '').toLowerCase() === 'true';
 
     // By default, exclude expired properties unless explicitly requested
     // But if status is empty string, show all (for admin dashboard)
@@ -200,20 +234,14 @@ router.get('/', [
         'SELECT id, image_url, image_data, image_mime_type, image_order, is_cover FROM property_images WHERE property_id = $1 ORDER BY CASE WHEN is_cover = true THEN 0 ELSE 1 END, image_order',
         [property.id]
       );
-      // Convert image data to base64 if available
-      property.images = imagesResult.rows.map(img => ({
-        id: img.id,
-        image_url: img.image_url,
-        image_data: img.image_data ? 'data:' + (img.image_mime_type || 'image/jpeg') + ';base64,' + img.image_data.toString('base64') : null,
-        image_order: img.image_order,
-        is_cover: img.is_cover
-      }));
+      property.images = formatPropertyImages(imagesResult.rows, { includeImageData });
 
-      // Set cover image to the marked cover image or first uploaded image if no URL or placeholder
-      if (!property.cover_image_url || property.cover_image_url === 'data:image/stored') {
-        const coverImage = property.images.find(img => img.is_cover) || property.images.find(img => img.image_data || img.image_url);
+      // Set cover image to the marked cover image or first uploaded image if no URL or placeholder.
+      // Keep payloads small by preferring image URLs unless the caller explicitly requests image data.
+      if (!property.cover_image_url || property.cover_image_url === 'data:image/stored' || !isValidImageUrl(property.cover_image_url)) {
+        const coverImage = property.images.find(img => img.is_cover) || property.images.find(img => img.image_url || img.image_data);
         if (coverImage) {
-          property.cover_image_url = coverImage.image_data || coverImage.image_url;
+          property.cover_image_url = coverImage.image_data || coverImage.image_url || null;
         }
       }
     }
@@ -489,7 +517,8 @@ router.post('/', authenticate, authorize('admin', 'staff'), uploadImages, [
               'id', pi.id,
               'image_url', pi.image_url,
               'image_order', pi.image_order,
-              'is_cover', pi.is_cover
+              'is_cover', pi.is_cover,
+              'image_data', CASE WHEN pi.image_data IS NOT NULL THEN 'data:' || COALESCE(pi.image_mime_type, 'image/jpeg') || ';base64,' || encode(pi.image_data, 'base64') ELSE NULL END
             ) ORDER BY pi.image_order
           ) FILTER (WHERE pi.id IS NOT NULL) as images
         FROM properties p
@@ -886,6 +915,7 @@ router.put('/:id/toggle-featured', authenticate, authorize('admin', 'staff'), as
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    const includeImageData = String(req.query.include_image_data || '').toLowerCase() === 'true';
 
     const result = await pool.query('SELECT * FROM properties WHERE id = $1 AND is_active = true', [id]);
 
@@ -900,19 +930,18 @@ router.get('/:id', async (req, res) => {
       'SELECT id, image_url, image_data, image_mime_type, image_order, is_cover FROM property_images WHERE property_id = $1 ORDER BY CASE WHEN is_cover = true THEN 0 ELSE 1 END, image_order',
       [id]
     );
-    property.images = imagesResult.rows.map(img => ({
-      id: img.id,
-      image_url: img.image_url,
-      image_data: img.image_data ? 'data:' + (img.image_mime_type || 'image/jpeg') + ';base64,' + img.image_data.toString('base64') : null,
-      image_order: img.image_order,
-      is_cover: img.is_cover
-    }));
+    property.images = formatPropertyImages(imagesResult.rows, { includeImageData });
+
+    // Alias area_sqft to area for frontend compatibility
+    if (property.area_sqft !== undefined && property.area === undefined) {
+      property.area = property.area_sqft;
+    }
 
     // Set cover image to the marked cover image or first image
-    if (property.cover_image_url === 'data:image/stored' || !property.cover_image_url) {
+    if (property.cover_image_url === 'data:image/stored' || !property.cover_image_url || !isValidImageUrl(property.cover_image_url)) {
       const coverImage = property.images.find(img => img.is_cover) || property.images[0];
       if (coverImage) {
-        property.cover_image_url = coverImage.image_data || coverImage.image_url;
+        property.cover_image_url = coverImage.image_data || coverImage.image_url || null;
       }
     }
 

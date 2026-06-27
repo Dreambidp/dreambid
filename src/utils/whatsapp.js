@@ -1,8 +1,33 @@
 const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '';
+const SUPPORT_PHONE = import.meta.env.VITE_SUPPORT_PHONE || '+919999999999';
 const WHATSAPP_API_URL = 'https://api.whatsapp.com/send';
 
+const formatIndianPhone = (phone) => {
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length === 12 && digits.startsWith('91')) {
+    return `91-${digits.slice(2, 4)} ${digits.slice(4, 8)} ${digits.slice(8)}`;
+  }
+  if (digits.length === 10) {
+    return `91-${digits.slice(0, 2)} ${digits.slice(2, 6)} ${digits.slice(6)}`;
+  }
+  return phone;
+};
+
 export const shareProperty = (property) => {
-  const message = `Check out this property: ${property.title}\n\nLocation: ${property.city}, ${property.state}\nReserve Price: ₹${parseFloat(property.reserve_price).toLocaleString('en-IN')}\nAuction Date: ${new Date(property.auction_date).toLocaleDateString()}\n\nView more: ${window.location.origin}/properties/${property.id}`;
+  const title = property.title || 'Property';
+  const location = [property.city, property.state].filter(Boolean).join(', ');
+  const reservePrice = property.reserve_price ? `₹${parseFloat(property.reserve_price).toLocaleString('en-IN')}` : 'N/A';
+  const auctionDate = property.auction_date
+    ? new Date(property.auction_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    : 'N/A';
+  const propertyUrl = `${window.location.origin}/properties/${property.id}`;
+  const mapLink = property.latitude && property.longitude
+    ? `https://maps.google.com/maps?q=${property.latitude},${property.longitude}`
+    : `https://maps.google.com/search/${encodeURIComponent(`${title} ${location}`)}`;
+  const whatsappDisplay = WHATSAPP_NUMBER ? formatIndianPhone(WHATSAPP_NUMBER) : '91-9999 999 999';
+  const supportPhone = formatIndianPhone(SUPPORT_PHONE);
+
+  const message = `${title}\nReserve Price: ${reservePrice}\nApplication Deadline: ${auctionDate}\n\nProperty Link for complete details: ${propertyUrl}\nand fill the Expression of Interest form to express your interest.\n\nNearest Google Map Location: ${mapLink}\n\nCall: ${supportPhone} or WhatsApp: ${whatsappDisplay} for more details.\n\nJoin our WhatsApp Communities: https://hecta.co/community`;
   const url = `${WHATSAPP_API_URL}?text=${encodeURIComponent(message)}`;
   window.open(url, '_blank');
 };
