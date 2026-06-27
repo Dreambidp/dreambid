@@ -77,7 +77,7 @@ export const activityAPI = {
 
 export const propertiesAPI = {
   getAll: (params) => api.get('/properties', { params }),
-  getById: (id) => api.get(`/properties/${id}`),
+  getById: (id, params) => api.get(`/properties/${id}`, { params }),
   create: (formData) => api.post('/properties', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),

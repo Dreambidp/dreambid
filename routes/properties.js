@@ -972,8 +972,11 @@ router.get('/:id', async (req, res) => {
       }
     }
 
-    // Increment view count
-    await pool.query('UPDATE properties SET views_count = views_count + 1 WHERE id = $1', [id]);
+    // Increment view count only for real public views
+    const incrementViewCount = String(req.query.increment_view_count || 'true').toLowerCase() !== 'false';
+    if (incrementViewCount) {
+      await pool.query('UPDATE properties SET views_count = views_count + 1 WHERE id = $1', [id]);
+    }
 
     res.json({ message: 'Property fetched successfully', data: { property } });
   } catch (error) {

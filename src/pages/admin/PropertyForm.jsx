@@ -14,7 +14,7 @@ function PropertyForm() {
 
   const { data: propertyData } = useQuery(
     ['property', id],
-    () => propertiesAPI.getById(id),
+    () => propertiesAPI.getById(id, { increment_view_count: 'false' }),
     { enabled: isEdit }
   );
 
