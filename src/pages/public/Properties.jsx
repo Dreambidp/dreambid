@@ -80,15 +80,6 @@ function Properties() {
     }
   );
 
-  // Debug logging
-  useEffect(() => {
-    console.log('=== PROPERTIES PAGE DEBUG ===');
-    console.log('Query Data:', data);
-    console.log('Is Loading:', isLoading);
-    console.log('Error:', error);
-    console.log('Properties Count:', properties.length);
-  }, [data, isLoading, error]);
-
   const properties = data?.data?.data?.properties || [];
   const pagination = data?.data?.data?.pagination || {};
 
@@ -226,6 +217,8 @@ function Properties() {
                             <img
                               src={getImageUrl(imageUrl)}
                               alt={property.title}
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                               onError={(e) => {
                                 e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%231F2A3D" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';

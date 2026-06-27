@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { lazy, Suspense, useState, useMemo, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from 'react-query';
 import { propertiesAPI, enquiriesAPI, interestsAPI } from '../../services/api';
@@ -7,8 +7,9 @@ import { getImageUrl } from '../../utils/imageUrl';
 import { formatNumber } from '../../utils/formatNumber';
 import { useShortlist } from '../../contexts/ShortlistContext';
 import { WhatsAppFloatContext } from '../../components/WhatsAppFloat';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
 import toast from 'react-hot-toast';
+
+const PropertyMap = lazy(() => import('../../components/PropertyMap'));
 import {
   HomeIcon,
   CreditCardIcon,
@@ -19,26 +20,6 @@ import {
   DocumentCheckIcon,
   BuildingOffice2Icon
 } from '@heroicons/react/24/outline';
-
-const mapContainerStyle = {
-  width: '100%',
-  height: '400px',
-};
-
-const mapOptions = {
-  disableDefaultUI: false,
-  zoomControl: true,
-  streetViewControl: false,
-  mapTypeControl: true,
-  fullscreenControl: true,
-  styles: [
-    {
-      featureType: 'poi',
-      elementType: 'labels',
-      stylers: [{ visibility: 'off' }]
-    }
-  ]
-};
 
 const buyingProcessSteps = [
   { 
@@ -631,6 +612,8 @@ function PropertyDetail() {
                         <img
                           src={getImageUrl(allImages[carouselIndex].url, allImages[carouselIndex].data)}
                           alt={`Property ${carouselIndex + 1}`}
+                          loading="lazy"
+                          decoding="async"
                           className="w-full h-full object-cover"
                           onError={(e) => {
                             e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23333" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
@@ -701,6 +684,8 @@ function PropertyDetail() {
                               <img
                                 src={getImageUrl(img.url, img.data)}
                                 alt={`Thumbnail ${index + 1}`}
+                                loading="lazy"
+                                decoding="async"
                                 className="w-full h-full object-cover"
                                 onError={(e) => {
                                   e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3C/svg%3E';
@@ -728,16 +713,13 @@ function PropertyDetail() {
                 <h3 className="text-lg font-semibold text-text-primary mb-4">Location</h3>
                 <div>
                   <div className="aspect-video rounded-lg overflow-hidden">
-                    <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-                      <GoogleMap
-                        mapContainerStyle={mapContainerStyle}
-                        center={center}
-                        zoom={15}
-                        options={mapOptions}
-                      >
-                        <Marker position={center} />
-                      </GoogleMap>
-                    </LoadScript>
+                    <Suspense fallback={
+                      <div className="flex items-center justify-center h-full text-text-secondary">
+                        Loading map…
+                      </div>
+                    }>
+                      <PropertyMap center={center} />
+                    </Suspense>
                   </div>
                 </div>
                 <div className="flex gap-3 mt-4">

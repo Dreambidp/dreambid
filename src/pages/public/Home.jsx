@@ -138,13 +138,7 @@ function Home() {
     }
   );
 
-  // Debug logging
-  useEffect(() => {
-    console.log('=== HOME PAGE DEBUG ===');
-    console.log('Featured Data:', featuredData);
-    console.log('Fallback Data:', fallbackData);
-    console.log('Featured Properties Count:', featuredProperties.length);
-  }, [featuredData, fallbackData]);
+
 
   // Featured properties - only from the featured query, no fallback
   const featuredProperties = featuredData?.data?.data?.properties || [];
@@ -468,6 +462,8 @@ function Home() {
                     <img
                       src={city.image}
                       alt={city.name}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="300" height="300"%3E%3Ccircle cx="150" cy="150" r="150" fill="%231F2A3D"/%3E%3Ctext fill="%23CBA135" x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-size="40" font-weight="bold"%3E' + city.name.charAt(0) + '%3C/text%3E%3C/svg%3E';
@@ -515,6 +511,8 @@ function Home() {
                       <img
                         src={getImageUrl(imageUrl)}
                         alt={property.title}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
                         onError={(e) => {
                           e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%231F2A3D" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
