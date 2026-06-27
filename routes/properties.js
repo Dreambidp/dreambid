@@ -57,12 +57,11 @@ const updateAuctionStatus = async () => {
     await pool.query(
       `UPDATE properties 
        SET status = CASE 
-         WHEN status = 'upcoming' AND auction_date <= $1 THEN 'active'
-         WHEN status = 'active' AND auction_date < $1 THEN 'expired'
+         WHEN status = 'upcoming' AND auction_date <= $1 THEN 'expired'
          ELSE status
        END
        WHERE (status = 'upcoming' AND auction_date <= $1)
-          OR (status = 'active' AND auction_date < $1)`,
+          OR (status = 'upcoming' AND auction_date <= $1))`,
       [now]
     );
   } catch (err) {
@@ -82,7 +81,7 @@ setInterval(updateAuctionStatus, 60000); // Every minute
 router.get('/', [
   query('status').optional().custom((value) => {
     // Allow empty string for "all properties" or valid status values
-    if (value === '' || !value || ['upcoming', 'active', 'expired', 'sold', 'cancelled'].includes(value)) {
+    if (value === '' || !value || ['upcoming', 'expired', 'sold', 'cancelled'].includes(value)) {
       return true;
     }
     throw new Error('Invalid status value');
@@ -434,7 +433,7 @@ router.post('/', authenticate, authorize('admin', 'staff'), uploadImages, [
 
       // Determine status based on auction_date
       const now = new Date();
-      const propertyStatus = auctionDate <= now ? 'active' : 'upcoming';
+      const propertyStatus = auctionDate <= now ? 'expired' : 'upcoming';
 
       // Create property with retry - use pre-validated numeric values
       const propertyResult = await queryWithRetry(
@@ -461,7 +460,7 @@ router.post('/', authenticate, authorize('admin', 'staff'), uploadImages, [
           application_end_date ? new Date(application_end_date) : null,
           map_embed_code || null,
           true, // is_active = true
-          propertyStatus // status = 'active' or 'upcoming'
+          propertyStatus // status = 'expired' or 'upcoming'
         ]
       );
 
@@ -678,7 +677,7 @@ router.put('/:id', authenticate, authorize('admin', 'staff'), uploadImages, asyn
       // Automatically determine status based on auction_date
       const auctionDate = new Date(auction_date);
       const now = new Date();
-      const calculatedStatus = auctionDate <= now ? 'active' : 'upcoming';
+      const calculatedStatus = auctionDate <= now ? 'expired' : 'upcoming';
       
       // Override status with auto-calculated value
       const statusIndex = updates.findIndex(u => u.includes('status ='));
