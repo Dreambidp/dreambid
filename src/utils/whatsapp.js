@@ -1,5 +1,5 @@
-const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '';
-const SUPPORT_PHONE = import.meta.env.VITE_SUPPORT_PHONE || '+919999999999';
+const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '+917428264402';
+const SUPPORT_PHONE = import.meta.env.VITE_SUPPORT_PHONE || '+917428264402';
 const WHATSAPP_API_URL = 'https://api.whatsapp.com/send';
 
 const formatIndianPhone = (phone) => {
@@ -22,13 +22,10 @@ export const shareProperty = (property) => {
     ? new Date(property.auction_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
     : 'N/A';
   const propertyUrl = `${window.location.origin}/properties/${property.id}`;
-  const mapLink = property.latitude && property.longitude
-    ? `https://maps.google.com/maps?q=${property.latitude},${property.longitude}`
-    : `https://maps.google.com/search/${encodeURIComponent(`${title} ${location}`)}`;
-  const whatsappDisplay = WHATSAPP_NUMBER ? formatIndianPhone(WHATSAPP_NUMBER) : '91-9999 999 999';
+  const whatsappDisplay = WHATSAPP_NUMBER ? formatIndianPhone(WHATSAPP_NUMBER) : '91-7428 264 402';
   const supportPhone = formatIndianPhone(SUPPORT_PHONE);
 
-  const message = `${fullTitle}\nReserve Price: ${reservePrice}\nApplication Deadline: ${auctionDate}\n\nProperty Link for complete details: ${propertyUrl} and fill the Expression of Interest form to express your interest.\n\nNearest Google Map Location: ${mapLink}\n\nCall: ${supportPhone} or WhatsApp: ${whatsappDisplay} for more details`;
+  const message = `${fullTitle}\nReserve Price: ${reservePrice}\nApplication Deadline: ${auctionDate}\n\nProperty Link for complete details: ${propertyUrl} and fill the Expression of Interest form to express your interest.\n\nCall: ${supportPhone} or WhatsApp: ${whatsappDisplay} for more details`;
   const url = `${WHATSAPP_API_URL}?text=${encodeURIComponent(message)}`;
   window.open(url, '_blank');
 };
