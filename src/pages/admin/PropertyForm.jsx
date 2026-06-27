@@ -409,12 +409,11 @@ function PropertyForm() {
             </div>
             <div>
               <label className="block text-sm font-medium text-text-primary mb-1">
-                Zip Code (6 digits)
+                Pin Code (6 digits)
               </label>
               <input
                 type="text"
                 name="zip_code"
-                required
                 value={formData.zip_code}
                 onChange={(e) => {
                   const value = e.target.value.replace(/\D/g, '').slice(0, 6);
@@ -424,7 +423,7 @@ function PropertyForm() {
                   }));
                 }}
                 maxLength="6"
-                placeholder="Enter 6-digit zip code"
+                placeholder="Enter 6-digit pin code"
                 className="w-full px-3 py-2 border border-midnight-600 bg-midnight-700 rounded-md focus:outline-none focus:ring-2 focus:ring-gold"
               />
               {formData.zip_code && formData.zip_code.length !== 6 && (
