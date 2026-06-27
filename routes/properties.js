@@ -610,6 +610,16 @@ router.put('/:id', authenticate, authorize('admin', 'staff'), uploadImages, asyn
       map_embed_code, images, coverImageId, removeImageIds, coverImage
     } = req.body;
 
+    // Parse coverImage if it's a JSON string
+    let coverImageData = null;
+    if (coverImage) {
+      try {
+        coverImageData = JSON.parse(coverImage);
+      } catch (e) {
+        // coverImage might be invalid JSON, ignore
+      }
+    }
+
     // Build update query dynamically
     const updates = [];
     const values = [];
@@ -737,14 +747,14 @@ router.put('/:id', authenticate, authorize('admin', 'staff'), uploadImages, asyn
         'UPDATE property_images SET is_cover = true WHERE id = $1 AND property_id = $2',
         [coverImageId, id]
       );
-    } else if (coverImage && coverImage.type === 'new' && coverImage.index !== undefined) {
+    } else if (coverImageData && coverImageData.type === 'new' && coverImageData.index !== undefined) {
       // Cover image is from newly added images - mark as stored
-      if (images && images[coverImage.index]) {
+      if (images && images[coverImageData.index]) {
         paramCount++;
         updates.push(`cover_image_url = $${paramCount}`);
         values.push('data:image/stored');
       }
-    } else if (coverImage && coverImage.type === 'existing' && coverImage.id) {
+    } else if (coverImageData && coverImageData.type === 'existing' && coverImageData.id) {
       // Cover image is existing - mark as stored and update is_cover flag
       paramCount++;
       updates.push(`cover_image_url = $${paramCount}`);
@@ -756,7 +766,7 @@ router.put('/:id', authenticate, authorize('admin', 'staff'), uploadImages, asyn
       );
       await pool.query(
         'UPDATE property_images SET is_cover = true WHERE id = $1 AND property_id = $2',
-        [coverImage.id, id]
+        [coverImageData.id, id]
       );
     }
 
@@ -812,7 +822,7 @@ router.put('/:id', authenticate, authorize('admin', 'staff'), uploadImages, asyn
           );
           
           // Check if this image should be the cover
-          const isCover = coverImage && coverImage.type === 'new' && coverImage.index === i;
+          const isCover = coverImageData && coverImageData.type === 'new' && coverImageData.index === i;
           
           await pool.query(
             'INSERT INTO property_images (property_id, image_url, image_data, image_mime_type, image_order, is_cover) VALUES ($1, $2, $3, $4, $5, $6)',
