@@ -30,14 +30,6 @@ function Dashboard() {
     }
   );
 
-  // Debug: Log when data changes
-  useEffect(() => {
-    if (propertiesData) {
-      console.log('Dashboard propertiesData:', propertiesData);
-      console.log('Properties array:', propertiesData?.data?.data?.properties);
-    }
-  }, [propertiesData]);
-
   const handleRefresh = async () => {
     await Promise.all([refetchProperties(), refetchEnquiries()]);
     setLastRefresh(new Date());

@@ -21,7 +21,6 @@ export const NotificationProvider = ({ children }) => {
   // Initialize push notifications on app start
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) {
-      console.log('ℹ️  Push notifications only available on native platforms');
       return;
     }
 
@@ -38,7 +37,6 @@ export const NotificationProvider = ({ children }) => {
 
       // Get device token
       const { value } = await PushNotifications.getDeliveredNotifications();
-      console.log('✓ Push notifications initialized');
 
       // Listen for push notification events
       setupNotificationListeners();
@@ -52,7 +50,6 @@ export const NotificationProvider = ({ children }) => {
   const setupNotificationListeners = () => {
     // Listen for token refresh
     PushNotifications.addListener('registration', (token) => {
-      console.log('✓ Device token received:', token.value);
       setDeviceToken(token.value);
       
       // Save token to localStorage for logout
@@ -64,8 +61,6 @@ export const NotificationProvider = ({ children }) => {
 
     // Listen for incoming notifications
     PushNotifications.addListener('pushNotificationReceived', (notification) => {
-      console.log('📬 Push notification received:', notification);
-      
       const data = notification.data || {};
       const title = notification.title || 'New Notification';
       const body = notification.body || '';
@@ -82,7 +77,6 @@ export const NotificationProvider = ({ children }) => {
       const notification = action.notification;
       const data = notification.data || {};
       
-      console.log('👆 Notification action performed:', data);
       handleNotificationAction(data);
     });
 
@@ -98,7 +92,6 @@ export const NotificationProvider = ({ children }) => {
       const authToken = localStorage.getItem('token');
 
       if (!authToken) {
-        console.log('⚠️  No auth token available for registration');
         return;
       }
 
@@ -115,7 +108,6 @@ export const NotificationProvider = ({ children }) => {
         }
       );
 
-      console.log('✓ Device token registered with backend');
     } catch (error) {
       console.error('❌ Failed to register token with backend:', error);
     }
@@ -126,19 +118,17 @@ export const NotificationProvider = ({ children }) => {
 
     switch (type) {
       case 'enquiry':
-        console.log('📧 New enquiry received');
         // Navigate to enquiries list for admin
         window.location.hash = '#enquiries';
         break;
 
       case 'registration':
-        console.log('📝 New user registration');
         // Navigate to registrations for admin
         window.location.hash = '#registrations';
         break;
 
       default:
-        console.log('📢 General notification received');
+        break;
     }
   };
 
@@ -147,12 +137,10 @@ export const NotificationProvider = ({ children }) => {
 
     switch (action) {
       case 'open_enquiries':
-        console.log('→ Opening enquiries');
         window.location.hash = '#enquiries';
         break;
 
       case 'open_registrations':
-        console.log('→ Opening registrations');
         window.location.hash = '#registrations';
         break;
 
@@ -178,7 +166,6 @@ export const NotificationProvider = ({ children }) => {
           );
         }
       }
-      console.log('✓ Notifications unregistered');
     } catch (error) {
       console.error('❌ Failed to unregister notifications:', error);
     }

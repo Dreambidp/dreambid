@@ -147,7 +147,6 @@ function Home() {
   // Deduplicate by ID to prevent any duplicate rendering
   const properties = useMemo(() => {
     const fallbackProps = fallbackData?.data?.data?.properties || [];
-    console.log('Fallback Props from useMemo:', fallbackProps);
     const seen = new Set();
     return fallbackProps.filter(prop => {
       if (seen.has(prop.id)) return false;

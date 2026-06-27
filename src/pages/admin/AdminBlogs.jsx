@@ -82,9 +82,6 @@ function AdminBlogs() {
       try {
         const response = await api.get(`/blogs/${blog.id}`);
         const fullBlog = response.data.data;
-        console.log('Fetched blog:', fullBlog);
-        console.log('Blog images array:', fullBlog.images);
-        
         setFormData(fullBlog);
         
         // Load all images - prioritize images array, then fall back to main image
@@ -106,7 +103,6 @@ function AdminBlogs() {
           allImages.push(fullBlog.image);
         }
         
-        console.log('Final allImages array:', allImages);
         setImagePreviews(allImages);
         setImages([]);
         setEditingBlog(fullBlog.id);

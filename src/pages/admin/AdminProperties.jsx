@@ -40,15 +40,6 @@ function Properties() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, [refetch]);
 
-  // Debug logging
-  useEffect(() => {
-    console.log('=== ADMIN PROPERTIES PAGE DEBUG ===');
-    console.log('Data:', data);
-    console.log('Is Loading:', isLoading);
-    console.log('Error:', error);
-    console.log('Status Filter:', statusFilter);
-  }, [data, isLoading, error, statusFilter]);
-
   const deleteMutation = useMutation(
     (id) => propertiesAPI.delete(id),
     {
@@ -65,7 +56,6 @@ function Properties() {
   );
 
   const properties = data?.data?.data?.properties || [];
-  console.log('Properties Array:', properties.length, properties);
 
   const handleDelete = (id, title) => {
     if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
