@@ -17,7 +17,7 @@ function BottomNavigation() {
 
   const navItems = [
     { path: '/', label: 'Home', icon: HomeIcon },
-    { path: '/properties', label: 'Listed Properties', icon: BuildingOffice2Icon },
+    { path: '/properties', label: 'Properties', icon: BuildingOffice2Icon },
     { path: '/shortlisted', label: 'Saved', icon: HeartIcon },
     ...(user 
       ? [
