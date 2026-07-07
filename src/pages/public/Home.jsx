@@ -45,6 +45,8 @@ function Home() {
   const citiesCarouselRef = useRef(null);
   const [carouselScroll, setCarouselScroll] = useState(0);
   const [autoScrollEnabled, setAutoScrollEnabled] = useState(true);
+  const [selectedImageModal, setSelectedImageModal] = useState(null);
+  const [imageModalIndex, setImageModalIndex] = useState(0);
   
   // Budget range mapping
   const budgetRanges = {
@@ -254,12 +256,18 @@ function Home() {
         : null);
     const applicationDate = property.auction_date ? new Date(property.auction_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
 
+    const handleImageClick = (e) => {
+      e.stopPropagation();
+      setSelectedImageModal(property);
+      setImageModalIndex(0);
+    };
+
     return (
       <div
         className={`card overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer ${extraClasses}`}
         onClick={() => navigate(`/properties/${property.id}`)}
       >
-        <div className="relative h-56 bg-midnight-800 overflow-hidden group">
+        <div className="relative h-56 bg-midnight-800 overflow-hidden group" onClick={handleImageClick}>
           {imageUrl ? (
             <>
               <img
@@ -360,7 +368,86 @@ function Home() {
 
   return (
     <div>
-      {/* Hero Section with Overlaid Search Bar */}
+      {/* Image Modal for Cards */}
+      {selectedImageModal && (() => {
+        const allImages = [];
+        if (selectedImageModal.cover_image_url && selectedImageModal.cover_image_url.trim() && !selectedImageModal.cover_image_url.includes('data:image/stored')) {
+          allImages.push({ url: selectedImageModal.cover_image_url, data: null });
+        }
+        if (selectedImageModal.images && selectedImageModal.images.length > 0) {
+          selectedImageModal.images.forEach(img => {
+            if (!img) return;
+            const imgUrl = typeof img === 'object' ? (img.image_url || img.image_data) : img;
+            if (imgUrl && String(imgUrl).trim() && imgUrl !== selectedImageModal.cover_image_url && !String(imgUrl).includes('data:image/stored')) {
+              allImages.push({ url: imgUrl, data: typeof img === 'object' ? img.image_data : null });
+            }
+          });
+        }
+        
+        if (allImages.length === 0) return null;
+        const currentImage = allImages[imageModalIndex] || allImages[0];
+
+        return (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+            onClick={() => setSelectedImageModal(null)}
+          >
+            <button
+              onClick={() => setSelectedImageModal(null)}
+              className="absolute top-4 right-4 text-white hover:text-red-500 transition-colors z-50 bg-red-600 hover:bg-red-700 rounded-full p-2 shadow-lg"
+              aria-label="Close"
+              title="Close (ESC)"
+            >
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            {allImages.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setImageModalIndex((prev) => (prev > 0 ? prev - 1 : allImages.length - 1));
+                  }}
+                  className="absolute left-4 text-white hover:text-red-500 transition-colors z-10 bg-black bg-opacity-50 rounded-full p-2 hover:bg-black"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setImageModalIndex((prev) => (prev < allImages.length - 1 ? prev + 1 : 0));
+                  }}
+                  className="absolute right-4 text-white hover:text-red-500 transition-colors z-10 bg-black bg-opacity-50 rounded-full p-2 hover:bg-black"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
+            )}
+            <div className="max-w-4xl max-h-full" onClick={(e) => e.stopPropagation()}>
+              <img
+                src={getImageUrl(currentImage.url, currentImage.data)}
+                alt={selectedImageModal.title}
+                className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                onError={(e) => {
+                  e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23333" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+                }}
+              />
+              {allImages.length > 1 && (
+                <div className="text-center text-white mt-4">
+                  <span className="text-sm">{imageModalIndex + 1} / {allImages.length}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Main Content */}
       <div className="relative bg-gradient-to-b from-midnight-950 to-midnight-900 text-white pt-16 md:pt-24 pb-20 md:pb-32 overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
