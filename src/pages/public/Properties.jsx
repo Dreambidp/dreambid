@@ -299,7 +299,7 @@ function Properties() {
                             <Link
                               to={`/properties/${property.id}`}
                               onClick={() => handleView(property.id)}
-                              className="flex-1 px-4 py-3 bg-gold text-midnight-950 text-center rounded-btn hover:bg-gold-hover transition font-semibold text-sm btn-primary"
+                              className="flex-1 px-4 py-3 bg-gold-hover text-midnight-950 text-center rounded-btn hover:bg-gold transition font-semibold text-sm btn-primary"
                             >
                               View Details
                             </Link>
@@ -308,7 +308,7 @@ function Properties() {
                                 shareProperty(property);
                                 interestsAPI.track({ property_id: property.id, interest_type: 'share' });
                               }}
-                              className="px-4 py-3 bg-status-live text-white rounded-btn hover:bg-green-600 transition flex items-center justify-center gap-2"
+                              className="flex-1 px-4 py-3 bg-status-live text-white rounded-btn hover:bg-green-600 transition flex items-center justify-center gap-2"
                               title="Share on WhatsApp"
                             >
                               <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
