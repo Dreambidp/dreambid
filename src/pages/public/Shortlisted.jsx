@@ -131,7 +131,7 @@ function Shortlisted() {
           <div className="flex gap-3">
             <Link
               to={`/properties/${property.id}`}
-              className="flex-1 px-4 py-3 bg-gold-hover text-midnight-950 text-center rounded-btn hover:bg-gold transition font-semibold text-sm btn-primary"
+              className="flex-1 px-4 py-3 bg-gold-hover text-midnight-950 rounded-btn hover:bg-gold transition font-semibold text-sm btn-primary flex items-center justify-center"
             >
               View Details
             </Link>

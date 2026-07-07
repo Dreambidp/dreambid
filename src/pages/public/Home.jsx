@@ -300,13 +300,16 @@ function Home() {
           </div>
 
           <button
-            onClick={() => {
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
               toggleShortlist(property);
               toast.success(isShortlisted(property.id) ? 'Removed from shortlist' : 'Added to shortlist');
             }}
             className="absolute top-4 right-4 p-2 bg-midnight-800 rounded-full hover:bg-midnight-700 transition"
+            title="Add to shortlist"
           >
-            <svg className={`w-5 h-5 ${isShortlisted(property.id) ? 'fill-red-500 text-red-500' : 'text-text-muted'}`} viewBox="0 0 24 24">
+            <svg className={`w-5 h-5 ${isShortlisted(property.id) ? 'fill-red-500 text-red-500' : 'text-white'}`} viewBox="0 0 24 24">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
             </svg>
           </button>
@@ -344,7 +347,7 @@ function Home() {
           <div className="flex gap-3">
             <Link
               to={`/properties/${property.id}`}
-              className="flex-1 px-4 py-3 bg-gold-hover text-midnight-950 text-center rounded-btn hover:bg-gold transition font-semibold text-sm btn-primary"
+              className="flex-1 px-4 py-3 bg-gold-hover text-midnight-950 rounded-btn hover:bg-gold transition font-semibold text-sm btn-primary flex items-center justify-center"
             >
               View Details
             </Link>
@@ -927,7 +930,7 @@ function Home() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto mb-12">
             {/* WhatsApp */}
             <a
-              href="https://wa.me/919876543210"
+              href="https://wa.me/917428264402?text=Hi%20I%20would%20like%20to%20know%20more%20about%20DreamBid"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-gradient-to-br from-midnight-800 to-midnight-750 border border-midnight-700 rounded-lg p-6 hover:border-green-500 hover:shadow-lg hover:shadow-green-500/20 transition-all duration-300 text-center group"
@@ -936,12 +939,12 @@ function Home() {
                 <img src="/whatsapp.svg" alt="WhatsApp" className="w-7 h-7" />
               </div>
               <h3 className="text-white font-semibold mb-1">WhatsApp</h3>
-              <p className="text-text-muted text-sm">Message us anytime</p>
+              <p className="text-text-muted text-sm">+91-7428264402</p>
             </a>
 
             {/* Instagram */}
             <a
-              href="https://instagram.com/dreambid"
+              href="https://www.instagram.com/dream_bid_properties?igsh=MXc2Z3psdnk5bHpx&utm_source=ig_contact_invite"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-gradient-to-br from-midnight-800 to-midnight-750 border border-midnight-700 rounded-lg p-6 hover:border-pink-500 hover:shadow-lg hover:shadow-pink-500/20 transition-all duration-300 text-center group"
@@ -952,12 +955,12 @@ function Home() {
                 </svg>
               </div>
               <h3 className="text-white font-semibold mb-1">Instagram</h3>
-              <p className="text-text-muted text-sm">Follow our updates</p>
+              <p className="text-text-muted text-sm">@dream_bid_properties</p>
             </a>
 
             {/* Facebook */}
             <a
-              href="https://facebook.com/dreambid"
+              href="https://www.facebook.com/share/1JHbhYZ11o/?mibextid=wwXIfr"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-gradient-to-br from-midnight-800 to-midnight-750 border border-midnight-700 rounded-lg p-6 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 text-center group"

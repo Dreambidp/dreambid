@@ -408,6 +408,43 @@ function Contact() {
           </div>
         </div>
 
+        {/* Social Media Section */}
+        <div className="mt-16 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-text-primary mb-4">
+            Follow Us on Social Media
+          </h2>
+          <p className="text-text-secondary text-base md:text-lg mb-8">
+            Stay updated with our latest properties and industry insights
+          </p>
+          <div className="flex justify-center gap-6">
+            <a
+              href="https://www.facebook.com/share/1JHbhYZ11o/?mibextid=wwXIfr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-6 py-3 bg-blue-600 text-white rounded-btn hover:bg-blue-700 transition font-semibold"
+              title="Follow on Facebook"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+              Facebook
+            </a>
+            <a
+              href="https://www.instagram.com/dream_bid_properties?igsh=MXc2Z3psdnk5bHpx&utm_source=ig_contact_invite"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-pink-500 to-red-500 text-white rounded-btn hover:from-pink-600 hover:to-red-600 transition font-semibold"
+              title="Follow on Instagram"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.117.6c-.779.263-1.618.634-2.223 1.24-.606.605-.977 1.45-1.239 2.22-.266.788-.467 1.657-.527 2.935C.04 8.333.024 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.527 2.935.262.79.633 1.636 1.24 2.24.604.606 1.45.977 2.22 1.239.788.266 1.657.467 2.935.527C8.333 23.96 8.74 23.976 12 23.976s3.667-.015 4.947-.072c1.277-.06 2.148-.261 2.935-.527.79-.262 1.636-.633 2.24-1.24.606-.604.977-1.45 1.239-2.22.266-.788.467-1.657.527-2.935.048-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.261-2.148-.527-2.935-.262-.79-.633-1.636-1.24-2.24-.604-.606-1.45-.977-2.22-1.239-.788-.266-1.657-.467-2.935-.527C15.667.048 15.26.024 12 0zm0 2.16c3.203 0 3.585.009 4.849.07 1.171.054 1.805.244 2.227.408.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.354 1.057.408 2.227.061 1.264.07 1.646.07 4.849s-.009 3.585-.07 4.849c-.054 1.171-.244 1.805-.408 2.227-.217.562-.477.96-.896 1.382-.42.419-.819.679-1.381.896-.422.164-1.057.354-2.227.408-1.264.061-1.646.07-4.849.07s-3.585-.009-4.849-.07c-1.171-.054-1.805-.244-2.227-.408-.562-.217-.96-.477-1.382-.896-.419-.42-.679-.819-.896-1.381-.164-.422-.354-1.057-.408-2.227-.061-1.264-.07-1.646-.07-4.849s.009-3.585.07-4.849c.054-1.171.244-1.805.408-2.227.217-.562.477-.96.896-1.382.42-.419.819-.679 1.381-.896.422-.164 1.057-.354 2.227-.408 1.264-.061 1.646-.07 4.849-.07z"/>
+                <circle cx="12" cy="12" r="3.307"/>
+                <circle cx="18.935" cy="5.307" r=".774"/>
+              </svg>
+              Instagram
+            </a>
+          </div>
+        </div>
 
       </div>
     </div>
