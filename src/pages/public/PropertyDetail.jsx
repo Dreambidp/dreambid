@@ -483,7 +483,7 @@ function PropertyDetail() {
                   {property.property_type && (
                     <div className="flex justify-between">
                       <span className="text-sm text-text-secondary">Property Type</span>
-                      <span className="text-sm font-medium text-text-primary">{property.property_type}</span>
+                      <span className="text-sm font-medium text-text-primary">{property.property_type.charAt(0).toUpperCase() + property.property_type.slice(1)}</span>
                     </div>
                   )}
                   <div className="flex justify-between">
@@ -512,6 +512,12 @@ function PropertyDetail() {
                     <div className="flex justify-between">
                       <span className="text-sm text-text-secondary">State</span>
                       <span className="text-sm font-medium text-text-primary">{property.state}</span>
+                    </div>
+                  )}
+                  {property.address && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-text-secondary">Address</span>
+                      <span className="text-sm font-medium text-text-primary">{property.address}</span>
                     </div>
                   )}
                 </div>
@@ -579,6 +585,14 @@ function PropertyDetail() {
                 </div>
               </div>
             </div>
+
+            {/* Description Section */}
+            {property.description && (
+              <div className="bg-midnight-900 border border-midnight-700 rounded-2xl shadow-sm p-6 mt-6">
+                <h3 className="text-lg font-semibold text-text-primary mb-4">Description</h3>
+                <p className="text-sm text-text-secondary leading-relaxed">{property.description}</p>
+              </div>
+            )}
 
             {/* Auto-Scrolling Carousel Section */}
             {((property.images && property.images.length > 0) || property.cover_image_url) && (() => {
