@@ -131,14 +131,11 @@ function Home() {
     }
   );
 
-  // Fallback query for general properties when featured is empty
+  // Fallback query for general properties for "More Properties" section
   const { data: fallbackData } = useQuery(
     ['fallback-properties'],
     () => {
       return propertiesAPI.getAll({ limit: 6 });
-    },
-    {
-      enabled: !featuredLoading && !featuredData?.data?.data?.properties?.length,
     }
   );
 
