@@ -259,18 +259,28 @@ function Home() {
         className={`card overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer ${extraClasses}`}
         onClick={() => navigate(`/properties/${property.id}`)}
       >
-        <div className="relative h-56 bg-midnight-800 overflow-hidden">
+        <div className="relative h-56 bg-midnight-800 overflow-hidden group">
           {imageUrl ? (
-            <img
-              src={getImageUrl(imageUrl)}
-              alt={property.title}
-              loading="lazy"
-              decoding="async"
-              className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
-              onError={(e) => {
-                e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%231F2A3D" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
-              }}
-            />
+            <>
+              <img
+                src={getImageUrl(imageUrl)}
+                alt={property.title}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover group-hover:scale-110 group-hover:brightness-75 transition duration-300"
+                onError={(e) => {
+                  e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%231F2A3D" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+                }}
+              />
+              {/* Magnifying Glass Icon */}
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 13H7" />
+                  </svg>
+                </div>
+              </div>
+            </>
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-midnight-800">
               <span className="text-text-secondary">No Image</span>

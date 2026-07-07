@@ -366,7 +366,9 @@ function PropertyDetail() {
           >
             <button
               onClick={() => setShowImageModal(false)}
-              className="absolute top-4 right-4 text-white hover:text-red-500 transition-colors z-10"
+              className="absolute top-4 right-4 text-white hover:text-red-500 transition-colors z-50 bg-red-600 hover:bg-red-700 rounded-full p-2 shadow-lg"
+            aria-label="Close"
+            title="Close (ESC)"
             >
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -620,19 +622,33 @@ function PropertyDetail() {
                 <div className="bg-midnight-900 border border-midnight-700 rounded-2xl shadow-sm p-6">
                   <h3 className="text-lg font-semibold text-text-primary mb-4">Property Gallery</h3>
                   <div className="relative">
-                    {/* Main Carousel Display */}
-                    <div className="relative bg-gray-900 rounded-xl overflow-hidden aspect-video">
+                    {/* Main Carousel Display - Click to Enlarge */}
+                    <div 
+                      className="relative bg-gray-900 rounded-xl overflow-hidden aspect-video cursor-pointer group"
+                      onClick={() => setShowImageModal(true)}
+                      title="Click to enlarge"
+                    >
                       {allImages[carouselIndex] && (
-                        <img
-                          src={getImageUrl(allImages[carouselIndex].url, allImages[carouselIndex].data)}
-                          alt={`Property ${carouselIndex + 1}`}
-                          loading="lazy"
-                          decoding="async"
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23333" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
-                          }}
-                        />
+                        <>
+                          <img
+                            src={getImageUrl(allImages[carouselIndex].url, allImages[carouselIndex].data)}
+                            alt={`Property ${carouselIndex + 1}`}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-cover group-hover:brightness-75 transition-all duration-300"
+                            onError={(e) => {
+                              e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23333" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+                            }}
+                          />
+                          {/* Magnifying Glass Icon */}
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <div className="bg-white/20 backdrop-blur-sm rounded-full p-4">
+                              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 13H7" />
+                              </svg>
+                            </div>
+                          </div>
+                        </>
                       )}
                       
                       {/* Navigation Arrows */}
@@ -685,11 +701,12 @@ function PropertyDetail() {
                           {allImages.map((img, index) => (
                             <button
                               key={index}
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setCarouselIndex(index);
                                 handleCarouselInteraction();
                               }}
-                              className={`flex-shrink-0 h-16 w-20 rounded-lg overflow-hidden border-2 transition-all ${
+                              className={`flex-shrink-0 h-16 w-20 rounded-lg overflow-hidden border-2 transition-all cursor-pointer group relative ${
                                 carouselIndex === index
                                   ? 'border-[#dc2626] ring-2 ring-[#dc2626]'
                                   : 'border-gray-300 hover:border-gray-400'
@@ -700,11 +717,17 @@ function PropertyDetail() {
                                 alt={`Thumbnail ${index + 1}`}
                                 loading="lazy"
                                 decoding="async"
-                                className="w-full h-full object-cover"
+                                className="w-full h-full object-cover group-hover:brightness-75 transition-all duration-300"
                                 onError={(e) => {
                                   e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3C/svg%3E';
                                 }}
                               />
+                              {/* Zoom indicator on hover */}
+                              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/20">
+                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                              </div>
                             </button>
                           ))}
                         </div>
