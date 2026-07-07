@@ -400,11 +400,11 @@ function PropertyDetail() {
                 </button>
               </>
             )}
-            <div className="max-w-7xl max-h-full" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full h-full flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
               <img
                 src={getImageUrl(currentImage.url, currentImage.data)}
                 alt={property.title}
-                className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                className="max-w-[95vw] max-h-[90vh] object-contain rounded-lg"
                 onError={(e) => {
                   console.error('Image failed to load:', e.target.src);
                   e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23ddd" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
