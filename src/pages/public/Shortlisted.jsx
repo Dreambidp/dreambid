@@ -50,88 +50,70 @@ function Shortlisted() {
         : null);
 
     return (
-    <div
-      key={property.id}
-      className="group card overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col h-full"
-    >
-      <div className="relative h-48 md:h-64 overflow-hidden bg-midnight-800">
-        {imageUrl ? (
-          <img
-            src={getImageUrl(imageUrl)}
-            alt={property.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
-            onError={(e) => {
-              e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%231F2A3D" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+      <div
+        key={property.id}
+        className="card overflow-hidden hover:shadow-2xl transition-all duration-300"
+      >
+        {/* Image Section */}
+        <div className="relative h-56 bg-midnight-800 overflow-hidden group">
+          {imageUrl ? (
+            <img
+              src={getImageUrl(imageUrl)}
+              alt={property.title}
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover group-hover:scale-110 group-hover:brightness-75 transition duration-300"
+              onError={(e) => {
+                e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%231F2A3D" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+              }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-midnight-800">
+              <span className="text-text-secondary">No Image</span>
+            </div>
+          )}
+
+          {/* Heart Button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleRemoveFromShortlist(property);
             }}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-midnight-800">
-            <span className="text-text-secondary">No Image</span>
-          </div>
-        )}
-        
-        {/* Status Badge */}
-        {property.status && (
-          <div className="absolute top-4 left-4">
-            <span
-              className={`px-3 py-1 rounded-lg text-xs font-semibold backdrop-blur-sm ${
-                property.status === 'upcoming'
-                  ? 'bg-gold/90 text-midnight-950'
-                  : property.status === 'active'
-                  ? 'bg-status-live/90 text-white'
-                  : property.status === 'expired'
-                  ? 'bg-red-500/90 text-white'
-                  : 'bg-gray-500/90 text-white'
-              }`}
-            >
-              {property.status === 'active' ? '🔴 BIDDING LIVE' : property.status.toUpperCase()}
-            </span>
-          </div>
-        )}
+            className="absolute top-4 right-4 p-2 bg-midnight-800 rounded-full hover:bg-midnight-700 transition"
+            title="Remove from shortlist"
+          >
+            <svg className="w-5 h-5 fill-red-500 text-red-500" viewBox="0 0 24 24">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+        </div>
 
-        {/* Auction Date */}
-        {property.auction_date && (
-          <div className="absolute top-4 right-4">
-            <span className="bg-black/70 text-white text-xs font-medium px-3 py-1 rounded-lg">
-              {new Date(property.auction_date).toLocaleDateString('en-IN', { month: '2-digit', day: '2-digit', year: '2-digit' })}
-            </span>
-          </div>
-        )}
-
-        {/* Heart Button */}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            handleRemoveFromShortlist(property);
-          }}
-          className="absolute bottom-4 right-4 p-2 bg-white/90 rounded-full hover:bg-white transition-colors shadow-lg"
-          title="Remove from shortlist"
-        >
-          <svg className="w-5 h-5 text-red-500 fill-current" viewBox="0 0 24 24">
-            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-          </svg>
-        </button>
-      </div>
-
-      {/* Property Details */}
-      <div className="p-4 md:p-6 flex flex-col h-full">
-        <div className="flex-grow">
-          <h3 className="text-lg md:text-xl font-bold text-white mb-2 line-clamp-2 min-h-14">
+        {/* Content Section */}
+        <div className="p-6">
+          {/* Title */}
+          <h3 className="text-lg md:text-2xl font-bold text-text-primary mb-3 line-clamp-2 min-h-14">
             {property.title}
           </h3>
-          <p className="text-text-secondary text-xs md:text-sm mb-3">
-            📍 {property.city}, {property.state} • {(property.area || property.area_sqft) && (property.area || property.area_sqft) !== 0 ? `${Math.round(property.area || property.area_sqft)} ${property.area_unit || 'sq.ft'}` : 'NA'}
+
+          {/* Location */}
+          <p className="text-text-secondary text-xs md:text-sm mb-4">
+            📍 {property.city}, {property.state}
           </p>
-          <div className="space-y-2">
+
+          {/* Property Details Grid */}
+          <div className="space-y-3 mb-4 pb-4 border-b border-midnight-700">
             <div>
               <p className="text-text-secondary text-xs font-semibold uppercase tracking-wide mb-1">Reserve Price</p>
-              <p className="text-lg md:text-2xl font-bold text-gold">₹{parseFloat(property.reserve_price).toLocaleString('en-IN')}</p>
+              <p className="text-lg md:text-2xl font-bold text-gold">
+                ₹{parseFloat(property.reserve_price).toLocaleString('en-IN')}
+              </p>
             </div>
-            <div className="flex justify-between text-xs pt-2 border-t border-midnight-700">
+
+            <div className="grid grid-cols-2 gap-4 text-xs">
               <div>
-                <p className="text-text-secondary">Auction Date</p>
-                <p className="text-text-primary font-medium">
+                <p className="text-text-secondary mb-1">Auction Date</p>
+                <p className="font-semibold text-text-primary">
                   {property.auction_date 
                     ? new Date(property.auction_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
                     : 'N/A'
@@ -139,31 +121,31 @@ function Shortlisted() {
                 </p>
               </div>
               <div>
-                <p className="text-text-secondary">Property Type</p>
-                <p className="text-text-primary font-medium">{property.property_type || 'N/A'}</p>
+                <p className="text-text-secondary mb-1">Property Type</p>
+                <p className="font-semibold text-text-primary">{property.property_type ? property.property_type.charAt(0).toUpperCase() + property.property_type.slice(1) : 'N/A'}</p>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Buttons */}
-        <div className="flex gap-2 md:gap-3 mt-4 md:mt-6 pt-4 md:pt-6 border-t border-midnight-700">
-          <Link
-            to={`/properties/${property.id}`}
-            className="flex-1 btn-primary text-center text-xs md:text-sm py-3 md:py-3 whitespace-nowrap"
-          >
-            View Details
-          </Link>
-          <button
-            onClick={() => shareProperty(property)}
-            className="px-3 md:px-4 py-3 md:py-3 bg-status-live text-white rounded-btn hover:bg-green-600 transition-all"
-            title="Share on WhatsApp"
-          >
-            <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
-          </button>
+          {/* Action Buttons */}
+          <div className="flex gap-3">
+            <Link
+              to={`/properties/${property.id}`}
+              className="flex-1 px-4 py-3 bg-gold-hover text-midnight-950 text-center rounded-btn hover:bg-gold transition font-semibold text-sm btn-primary"
+            >
+              View Details
+            </Link>
+            <button
+              onClick={() => shareProperty(property)}
+              className="flex-1 px-4 py-3 bg-status-live text-white rounded-btn hover:bg-green-600 transition flex items-center justify-center gap-2"
+              title="Share on WhatsApp"
+            >
+              <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
+              Share
+            </button>
+          </div>
         </div>
       </div>
-    </div>
     );
   };
 
@@ -174,7 +156,7 @@ function Shortlisted() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-text-primary">Shortlisted Properties</h1>
+              <h1 className="text-3xl font-bold text-text-primary font-sans">Shortlisted Properties</h1>
               <p className="mt-2 text-text-secondary">
                 Total: {shortlistedProperties.length} properties
               </p>
@@ -227,7 +209,7 @@ function Shortlisted() {
             {groupedProperties.active.length > 0 && (
               <div>
                 <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-text-primary flex items-center gap-2">
+                  <h2 className="text-2xl font-bold text-text-primary flex items-center gap-2 font-sans">
                     <span className="w-2 h-2 bg-green-500 rounded-full"></span>
                     Active Auctions ({groupedProperties.active.length})
                   </h2>
@@ -245,7 +227,7 @@ function Shortlisted() {
             {groupedProperties.expired.length > 0 && (
               <div>
                 <div className="mb-6 pt-8 border-t border-midnight-700">
-                  <h2 className="text-2xl font-bold text-text-primary flex items-center gap-2">
+                  <h2 className="text-2xl font-bold text-text-primary flex items-center gap-2 font-sans">
                     <span className="w-2 h-2 bg-red-500 rounded-full"></span>
                     Expired Auctions ({groupedProperties.expired.length})
                   </h2>
