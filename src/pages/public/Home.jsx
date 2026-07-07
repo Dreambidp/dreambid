@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery } from 'react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { propertiesAPI } from '../../services/api';
 import { shareProperty } from '../../utils/whatsapp';
@@ -37,6 +37,7 @@ function useDebounce(value, delay) {
 
 function Home() {
   const { toggleShortlist, isShortlisted } = useShortlist();
+  const navigate = useNavigate();
   const scrollContainerRef = useRef(null);
   const [currentSlide, setCurrentSlide] = useState(0);
   const totalSlides = 8; // We have 8 steps
@@ -112,7 +113,7 @@ function Home() {
     };
   }, [debouncedCity, filters.property_type, filters.budget]);
 
-  const { data: featuredData } = useQuery(
+  const { data: featuredData, isLoading: featuredLoading } = useQuery(
     ['featured-properties', queryFilters],
     () => {
       // Remove empty string values for numeric fields to avoid validation errors
@@ -135,9 +136,11 @@ function Home() {
     ['fallback-properties'],
     () => {
       return propertiesAPI.getAll({ limit: 6 });
+    },
+    {
+      enabled: !featuredLoading && !featuredData?.data?.data?.properties?.length,
     }
   );
-
 
 
   // Featured properties - only from the featured query, no fallback
@@ -245,6 +248,107 @@ function Home() {
         behavior: 'smooth' 
       });
     }
+  };
+
+  const renderPropertyCard = (property, extraClasses = '') => {
+    const imageUrl = property.cover_image_url || 
+      (property.images && property.images.length > 0 
+        ? (typeof property.images[0] === 'object' ? (property.images[0].image_data || property.images[0].image_url) : property.images[0])
+        : null);
+    const applicationDate = property.auction_date ? new Date(property.auction_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A';
+
+    return (
+      <div
+        className={`card overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer ${extraClasses}`}
+        onClick={() => navigate(`/properties/${property.id}`)}
+      >
+        <div className="relative h-56 bg-midnight-800 overflow-hidden">
+          {imageUrl ? (
+            <img
+              src={getImageUrl(imageUrl)}
+              alt={property.title}
+              loading="lazy"
+              decoding="async"
+              className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+              onError={(e) => {
+                e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%231F2A3D" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+              }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-midnight-800">
+              <span className="text-text-secondary">No Image</span>
+            </div>
+          )}
+
+          <div className="absolute top-4 left-4 bg-gold text-midnight-950 px-3 py-1 rounded-full text-xs font-semibold">
+            P{property.id}
+          </div>
+
+          <button
+            onClick={() => {
+              toggleShortlist(property);
+              toast.success(isShortlisted(property.id) ? 'Removed from shortlist' : 'Added to shortlist');
+            }}
+            className="absolute top-4 right-4 p-2 bg-midnight-800 rounded-full hover:bg-midnight-700 transition"
+          >
+            <svg className={`w-5 h-5 ${isShortlisted(property.id) ? 'fill-red-500 text-red-500' : 'text-text-muted'}`} viewBox="0 0 24 24">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+        </div>
+
+        <div className="p-6">
+          <h3 className="text-lg md:text-2xl font-bold text-text-primary mb-3 line-clamp-2 min-h-14">
+            {property.title}
+          </h3>
+
+          <p className="text-text-secondary text-xs md:text-sm mb-4">
+            📍 {property.city}, {property.state}
+          </p>
+
+          <div className="space-y-3 mb-4 pb-4 border-b border-midnight-700">
+            <div>
+              <p className="text-text-secondary text-xs font-semibold uppercase tracking-wide mb-1">Reserve Price</p>
+              <p className="text-lg md:text-2xl font-bold text-gold">
+                ₹{parseFloat(property.reserve_price).toLocaleString('en-IN')}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 text-xs">
+              <div>
+                <p className="text-text-secondary mb-1">Application Date</p>
+                <p className="font-semibold text-text-primary">{applicationDate}</p>
+              </div>
+              <div>
+                <p className="text-text-secondary mb-1">Possession Status</p>
+                <p className="font-semibold text-text-primary">Physical</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Link
+              to={`/properties/${property.id}`}
+              className="flex-1 px-4 py-3 bg-gold text-midnight-950 text-center rounded-btn hover:bg-gold-hover transition font-semibold text-sm btn-primary"
+            >
+              View Details
+            </Link>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                shareProperty(property);
+              }}
+              className="px-4 py-3 bg-status-live text-white rounded-btn hover:bg-green-600 transition flex items-center justify-center gap-2"
+              title="Share on WhatsApp"
+            >
+              <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
+              Share
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -496,111 +600,11 @@ function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
-              {featuredProperties.map((property) => {
-                const imageUrl = property.cover_image_url || 
-                  (property.images && property.images.length > 0 
-                    ? (typeof property.images[0] === 'object' ? (property.images[0].image_data || property.images[0].image_url) : property.images[0])
-                    : null);
-
-                return (
-                <div key={property.id} className="card overflow-hidden hover:shadow-2xl transition-all duration-300">
-                  {/* Image Section */}
-                  <div className="relative h-56 bg-midnight-800 overflow-hidden">
-                    {imageUrl ? (
-                      <img
-                        src={getImageUrl(imageUrl)}
-                        alt={property.title}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
-                        onError={(e) => {
-                          e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%231F2A3D" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-midnight-800">
-                        <span className="text-text-secondary">No Image</span>
-                      </div>
-                    )}
-                    
-                    {/* Property ID Badge */}
-                    <div className="absolute top-4 left-4 bg-gold text-midnight-950 px-3 py-1 rounded-full text-xs font-semibold">
-                      P{property.id}
-                    </div>
-
-                    {/* Wishlist Button */}
-                    <button
-                      onClick={() => {
-                        toggleShortlist(property);
-                        toast.success(isShortlisted(property.id) ? 'Removed from shortlist' : 'Added to shortlist');
-                      }}
-                      className="absolute top-4 right-4 p-2 bg-midnight-800 rounded-full hover:bg-midnight-700 transition"
-                    >
-                      <svg className={`w-5 h-5 ${isShortlisted(property.id) ? 'fill-red-500 text-red-500' : 'text-text-muted'}`} viewBox="0 0 24 24">
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* Content Section */}
-                  <div className="p-6">
-                    {/* Title */}
-                    <h3 className="text-lg md:text-2xl font-bold text-text-primary mb-3 line-clamp-2 min-h-14">
-                      {property.title}
-                    </h3>
-
-                    {/* Location */}
-                    <p className="text-text-secondary text-xs md:text-sm mb-4">
-                      📍 {property.city}, {property.state}
-                    </p>
-
-                    {/* Property Details Grid */}
-                    <div className="space-y-3 mb-4 pb-4 border-b border-midnight-700">
-                      <div>
-                        <p className="text-text-secondary text-xs font-semibold uppercase tracking-wide mb-1">Reserve Price</p>
-                        <p className="text-lg md:text-2xl font-bold text-gold">
-                          ₹{parseFloat(property.reserve_price).toLocaleString('en-IN')}
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4 text-xs">
-                        <div>
-                          <p className="text-text-secondary mb-1">Application Date</p>
-                          <p className="font-semibold text-text-primary">
-                            {property.auction_date 
-                              ? new Date(property.auction_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
-                              : 'N/A'
-                            }
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-text-secondary mb-1">Possession Status</p>
-                          <p className="font-semibold text-text-primary">Physical</p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex gap-3">
-                      <Link
-                        to={`/properties/${property.id}`}
-                        className="flex-1 px-4 py-3 bg-gold text-midnight-950 text-center rounded-btn hover:bg-gold-hover transition font-semibold text-sm btn-primary"
-                      >
-                        View Details
-                      </Link>
-                      <button
-                        onClick={() => shareProperty(property)}
-                        className="px-4 py-3 bg-status-live text-white rounded-btn hover:bg-green-600 transition flex items-center justify-center gap-2"
-                        title="Share on WhatsApp"
-                      >
-                        <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
-                        Share
-                      </button>
-                    </div>
-                  </div>
+              {featuredProperties.map((property) => (
+                <div key={property.id} className="h-full">
+                  {renderPropertyCard(property)}
                 </div>
-                );
-              })}
+              ))}
             </div>
           )}
 
@@ -646,79 +650,11 @@ function Home() {
                   className="flex gap-6 md:gap-8 overflow-x-auto scroll-smooth hide-scrollbar snap-x snap-mandatory"
                 >
                   {/* Display each property once */}
-                  {properties.map((property, index) => {
-                    const imageUrl = property.cover_image_url || 
-                      (property.images && property.images.length > 0 
-                        ? (typeof property.images[0] === 'object' ? (property.images[0].image_data || property.images[0].image_url) : property.images[0])
-                        : null);
-
-                    return (
-                      <div key={`${property.id}-${index}`} className="flex-shrink-0 w-full sm:w-80 md:w-96 snap-center">
-                        <div className="card overflow-hidden hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
-                          <div className="relative h-48 md:h-56 overflow-hidden bg-midnight-800">
-                            {imageUrl ? (
-                              <img
-                                src={getImageUrl(imageUrl)}
-                                alt={property.title}
-                                className="w-full h-full object-cover hover:scale-110 transition duration-300"
-                                onError={(e) => {
-                                  e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%231F2A3D" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
-                                }}
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-midnight-800">
-                                <span className="text-text-secondary">No Image</span>
-                              </div>
-                            )}
-                            <div className="absolute top-4 left-4">
-                              <span className={`px-4 py-2 rounded-full text-xs font-bold backdrop-blur-sm ${
-                                property.status === 'active' ? 'bg-status-live/90 text-white' :
-                                property.status === 'upcoming' ? 'bg-gold/90 text-midnight-950' :
-                                'bg-text-secondary/30 text-text-primary'
-                              }`}>
-                                {property.status === 'active' ? '🔴 Bidding Live' : property.status.toUpperCase()}
-                              </span>
-                            </div>
-                            
-                            {/* Wishlist Button */}
-                            <button
-                              onClick={() => {
-                                toggleShortlist(property);
-                                toast.success(isShortlisted(property.id) ? 'Removed from shortlist' : 'Added to shortlist');
-                              }}
-                              className="absolute top-4 right-4 p-2 bg-midnight-800 rounded-full hover:bg-midnight-700 transition"
-                            >
-                              <svg className={`w-5 h-5 ${isShortlisted(property.id) ? 'fill-red-500 text-red-500' : 'text-text-muted'}`} viewBox="0 0 24 24">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                              </svg>
-                            </button>
-                          </div>
-                          <div className="p-4 md:p-6 flex-grow flex flex-col">
-                            <h3 className="text-lg md:text-xl font-bold text-white mb-2 line-clamp-2">{property.title}</h3>
-                            <p className="text-text-secondary text-xs md:text-sm mb-3">
-                              📍 {property.city}, {property.state} • {property.area_sqft || property.property_size || 'N/A'} {property.area_unit || 'sq.ft'}
-                            </p>
-                            <p className="text-lg md:text-2xl font-bold text-gold mb-4 flex-grow">₹{parseFloat(property.reserve_price).toLocaleString('en-IN')}</p>
-                            <div className="flex gap-2 md:gap-3 pt-4 md:pt-6 border-t border-midnight-700">
-                              <Link
-                                to={`/properties/${property.id}`}
-                                className="flex-1 btn-primary text-center text-xs md:text-sm py-3 md:py-4"
-                              >
-                                View Details
-                              </Link>
-                              <button
-                                onClick={() => shareProperty(property)}
-                                className="px-3 md:px-4 py-3 md:py-4 bg-status-live text-white rounded-btn hover:bg-green-600 transition-all"
-                                title="Share on WhatsApp"
-                              >
-                                <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                  {properties.map((property, index) => (
+                    <div key={`${property.id}-${index}`} className="flex-shrink-0 w-full sm:w-80 md:w-96 snap-center">
+                      {renderPropertyCard(property, 'h-full flex flex-col')}
+                    </div>
+                  ))}
                 </div>
               </div>
 
