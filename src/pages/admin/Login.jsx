@@ -59,7 +59,7 @@ function Login() {
             <div className="text-center space-y-3">
               {/* Logo/Icon */}
               <div className="flex justify-center">
-                <img src="/Dreambid_logo2.svg" alt="DreamBid" className="w-16 h-16 shadow-dark-elevation" />
+                <img src="/logo.png" alt="DreamBid" className="h-24 sm:h-28 w-auto shadow-dark-elevation object-contain" />
               </div>
               <h1 className="text-3xl sm:text-4xl font-bold text-white">
                 Entity Login

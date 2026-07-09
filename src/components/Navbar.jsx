@@ -39,10 +39,7 @@ function Navbar() {
             onClick={closeMenu}
             className="flex items-center gap-2 hover:opacity-80 transition-opacity duration-300"
           >
-            <img src="/Dreambid_logo2.svg" alt="DreamBid" className="w-14 h-14 md:w-16 md:h-16" />
-            <span className="text-xl md:text-2xl font-semibold text-white hidden sm:inline">
-              Dream<span className="text-red-500">Bid</span>
-            </span>
+            <img src="/logo.png" alt="DreamBid" className="h-14 md:h-16 lg:h-20 w-auto object-contain" />
           </Link>
 
           {/* Desktop Navigation - Menu Dropdown */}
