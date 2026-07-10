@@ -14,7 +14,7 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'https://dreambid-production.up.railway.app',
+        target: process.env.VITE_API_URL || 'https://web-production-86c3.up.railway.app',
         changeOrigin: true,
       },
     },

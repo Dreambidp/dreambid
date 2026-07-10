@@ -21,7 +21,7 @@ export const getImageUrl = (imagePath, imageData = null) => {
   
 
   // Get API base URL (remove /api suffix if present)
-  let apiUrl = import.meta.env.VITE_API_URL || 'https://dreambid-production.up.railway.app/api';
+  let apiUrl = import.meta.env.VITE_API_URL || 'https://web-production-86c3.up.railway.app/api';
   
   // Ensure URL has proper protocol
   if (!apiUrl.startsWith('http://') && !apiUrl.startsWith('https://')) {

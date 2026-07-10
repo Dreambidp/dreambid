@@ -5,13 +5,12 @@ export const up = async () => {
     // Add is_cover column to property_images table to track cover image
     await pool.query(`
       ALTER TABLE property_images
-      ADD COLUMN is_cover BOOLEAN DEFAULT false;
+      ADD COLUMN IF NOT EXISTS is_cover BOOLEAN DEFAULT false;
     `);
     
-    console.log('✓ Migration: Added is_cover column to property_images table');
+    console.log('✓ Migration: Added is_cover column to property_images table (if needed)');
   } catch (error) {
-    // If column already exists, continue
-    if (error.message.includes('already exists') || error.message.includes('column')) {
+    if (error.message.includes('already exists') || error.message.includes('duplicate column')) {
       console.log('ℹ️ Migration notice: is_cover column already exists');
     } else {
       console.error('Migration error:', error);
@@ -24,7 +23,7 @@ export const down = async () => {
   try {
     await pool.query(`
       ALTER TABLE property_images
-      DROP COLUMN is_cover;
+      DROP COLUMN IF EXISTS is_cover;
     `);
     
     console.log('✓ Migration rolled back: is_cover column removed from property_images');

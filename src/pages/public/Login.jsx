@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 function Login() {
@@ -97,7 +96,7 @@ function Login() {
         navigate('/dashboard');
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Login failed. Please try again.';
+      const errorMessage = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || 'Login failed. Please try again.';
       toast.error(errorMessage);
       
       if (error.response?.status === 401) {

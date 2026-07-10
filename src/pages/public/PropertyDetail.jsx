@@ -483,43 +483,43 @@ function PropertyDetail() {
                 <h3 className="text-lg font-semibold text-text-primary mb-4">Property Details</h3>
                 <div className="space-y-3">
                   {property.property_type && (
-                    <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-start">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-center">
                       <span className="text-sm text-text-secondary shrink-0">Property Type</span>
-                      <span className="text-sm font-medium text-text-primary break-words leading-relaxed sm:ml-4 sm:flex-1 sm:text-right">{property.property_type.charAt(0).toUpperCase() + property.property_type.slice(1)}</span>
+                      <span className="text-sm font-medium text-text-primary break-words leading-relaxed sm:ml-4 sm:flex-1">{property.property_type.charAt(0).toUpperCase() + property.property_type.slice(1)}</span>
                     </div>
                   )}
-                  <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-start">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center">
                     <span className="text-sm text-text-secondary shrink-0">Area</span>
-                    <span className="text-sm font-medium text-text-primary break-words leading-relaxed sm:ml-4 sm:flex-1 sm:text-right">{(property.area || property.area_sqft) && (property.area || property.area_sqft) !== 0 ? `${formatNumber(property.area || property.area_sqft)} ${property.area_unit || 'sq.ft.'}` : 'NA'}</span>
+                    <span className="text-sm font-medium text-text-primary break-words leading-relaxed sm:ml-4 sm:flex-1">{(property.area || property.area_sqft) && (property.area || property.area_sqft) !== 0 ? `${formatNumber(property.area || property.area_sqft)} ${property.area_unit || 'sq.ft.'}` : 'NA'}</span>
                   </div>
                   {property.built_up_area && (
-                    <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-start">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-center">
                       <span className="text-sm text-text-secondary shrink-0">Built-Up Area</span>
-                      <span className="text-sm font-medium text-text-primary break-words leading-relaxed sm:ml-4 sm:flex-1 sm:text-right">{formatNumber(property.built_up_area)} {property.built_up_area_unit || 'sq.ft.'}</span>
+                      <span className="text-sm font-medium text-text-primary break-words leading-relaxed sm:ml-4 sm:flex-1">{formatNumber(property.built_up_area)} {property.built_up_area_unit || 'sq.ft.'}</span>
                     </div>
                   )}
                   {property.total_area && (
-                    <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-start">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-center">
                       <span className="text-sm text-text-secondary shrink-0">Total Area</span>
-                      <span className="text-sm font-medium text-text-primary break-words leading-relaxed sm:ml-4 sm:flex-1 sm:text-right">{formatNumber(property.total_area)} {property.total_area_unit || 'sq.ft.'}</span>
+                      <span className="text-sm font-medium text-text-primary break-words leading-relaxed sm:ml-4 sm:flex-1">{formatNumber(property.total_area)} {property.total_area_unit || 'sq.ft.'}</span>
                     </div>
                   )}
                   {property.city && (
-                    <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-start">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-center">
                       <span className="text-sm text-text-secondary shrink-0">City</span>
-                      <span className="text-sm font-medium text-text-primary break-words leading-relaxed sm:ml-4 sm:flex-1 sm:text-right">{property.city}</span>
+                      <span className="text-sm font-medium text-text-primary break-words leading-relaxed sm:ml-4 sm:flex-1">{property.city}</span>
                     </div>
                   )}
                   {property.state && (
-                    <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-start">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-center">
                       <span className="text-sm text-text-secondary shrink-0">State</span>
-                      <span className="text-sm font-medium text-text-primary break-words leading-relaxed sm:ml-4 sm:flex-1 sm:text-right">{property.state}</span>
+                      <span className="text-sm font-medium text-text-primary break-words leading-relaxed sm:ml-4 sm:flex-1">{property.state}</span>
                     </div>
                   )}
                   {property.address && (
-                    <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:items-start">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-center">
                       <span className="text-sm text-text-secondary shrink-0">Address</span>
-                      <span className="text-sm font-medium text-text-primary break-words leading-relaxed sm:ml-4 sm:flex-1 sm:text-right">{property.address}</span>
+                      <span className="text-sm font-medium text-text-primary break-words leading-relaxed sm:ml-4 sm:flex-1">{property.address}</span>
                     </div>
                   )}
                 </div>
