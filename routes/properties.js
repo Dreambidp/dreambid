@@ -4,6 +4,7 @@ import pool, { queryWithRetry } from '../config/database.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { uploadImages, uploadPdf, getFileUrl } from '../middleware/upload.js';
 import { executeWithRetry } from '../utils/dbRetry.js';
+import { buildAuctionStatusUpdateQuery } from '../utils/propertyQueries.js';
 
 const router = express.Router();
 
@@ -53,17 +54,8 @@ const updateAuctionStatus = async () => {
       return;
     }
 
-    // Update using status column
-    await pool.query(
-      `UPDATE properties 
-       SET status = CASE 
-         WHEN status = 'upcoming' AND auction_date <= $1 THEN 'expired'
-         ELSE status
-       END
-       WHERE (status = 'upcoming' AND auction_date <= $1)
-          OR (status = 'upcoming' AND auction_date <= $1))`,
-      [now]
-    );
+    // Update properties whose auction date has passed to expired
+    await queryWithRetry(buildAuctionStatusUpdateQuery(), [now]);
   } catch (err) {
     // Log and continue - don't crash the server if DB is unavailable during dev
     console.warn('updateAuctionStatus: database unavailable or query failed', err && err.message ? err.message : err);
@@ -204,7 +196,7 @@ router.get('/', [
 
     // Get total count
     const countQuery = query.replace('SELECT *', 'SELECT COUNT(*)');
-    const countResult = await pool.query(countQuery, params);
+    const countResult = await queryWithRetry(countQuery, params);
     const total = parseInt(countResult.rows[0].count);
 
     // Add pagination with sorting
@@ -225,15 +217,32 @@ router.get('/', [
     query += ` OFFSET $${paramCount}`;
     params.push((page - 1) * limit);
 
-    const result = await pool.query(query, params);
+    const result = await queryWithRetry(query, params);
 
-    // Get images for each property
-    for (let property of result.rows) {
-      const imagesResult = await pool.query(
-        'SELECT id, image_url, image_data, image_mime_type, image_order, is_cover FROM property_images WHERE property_id = $1 ORDER BY CASE WHEN is_cover = true THEN 0 ELSE 1 END, image_order',
-        [property.id]
+    // Load property images in a single query instead of one query per property
+    const propertyIds = result.rows.map((property) => property.id);
+    let imagesByPropertyId = new Map();
+
+    if (propertyIds.length > 0) {
+      const imagesResult = await queryWithRetry(
+        `SELECT id, property_id, image_url, image_data, image_mime_type, image_order, is_cover
+         FROM property_images
+         WHERE property_id = ANY($1::int[])
+         ORDER BY CASE WHEN is_cover = true THEN 0 ELSE 1 END, image_order`,
+        [propertyIds]
       );
-      property.images = formatPropertyImages(imagesResult.rows, { includeImageData });
+
+      for (const image of imagesResult.rows) {
+        if (!imagesByPropertyId.has(image.property_id)) {
+          imagesByPropertyId.set(image.property_id, []);
+        }
+        imagesByPropertyId.get(image.property_id).push(image);
+      }
+    }
+
+    for (let property of result.rows) {
+      const imagesRows = imagesByPropertyId.get(property.id) || [];
+      property.images = formatPropertyImages(imagesRows, { includeImageData });
 
       // Set cover image to the marked cover image or first uploaded image if no URL or placeholder.
       // Keep payloads small by preferring image URLs unless the caller explicitly requests image data.
