@@ -3,6 +3,12 @@ import { Capacitor } from '@capacitor/core';
 import { PushNotifications } from '@capacitor/push-notifications';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../services/apiConfig.js';
+
+const apiClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 30000,
+});
 
 const NotificationContext = createContext();
 
@@ -95,8 +101,8 @@ export const NotificationProvider = ({ children }) => {
         return;
       }
 
-      await axios.post(
-        '/api/notifications/register-token',
+      await apiClient.post(
+        '/notifications/register-token',
         {
           deviceToken: token,
           platform: platform === 'ios' ? 'ios' : 'android',
@@ -155,8 +161,8 @@ export const NotificationProvider = ({ children }) => {
       if (deviceToken) {
         const authToken = localStorage.getItem('token');
         if (authToken) {
-          await axios.post(
-            '/api/notifications/unregister-token',
+          await apiClient.post(
+            '/notifications/unregister-token',
             { deviceToken },
             {
               headers: {
