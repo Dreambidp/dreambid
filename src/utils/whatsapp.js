@@ -26,7 +26,7 @@ export const shareProperty = (property) => {
   const supportPhone = formatIndianPhone(SUPPORT_PHONE);
 
   const message = `${fullTitle}\nReserve Price: ${reservePrice}\nApplication Deadline: ${auctionDate}\n\nProperty Link for complete details: ${propertyUrl} and fill the Expression of Interest form to express your interest.\n\nCall: ${supportPhone} or WhatsApp: ${whatsappDisplay} for more details`;
-  const url = `${WHATSAPP_API_URL}?text=${encodeURIComponent(message)}`;
+  const url = `${WHATSAPP_API_URL}/?phone=${WHATSAPP_NUMBER.replace(/\D/g, '')}&text=${encodeURIComponent(message)}&type=phone_number&app_absent=0`;
   window.open(url, '_blank');
 };
 
@@ -40,7 +40,7 @@ export const contactViaWhatsApp = (property, enquiry = null) => {
     }
   }
   
-  const url = `${WHATSAPP_API_URL}?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(message)}`;
+  const url = `${WHATSAPP_API_URL}/?phone=${WHATSAPP_NUMBER.replace(/\D/g, '')}&text=${encodeURIComponent(message)}&type=phone_number&app_absent=0`;
   window.open(url, '_blank');
 };
 

@@ -1,7 +1,12 @@
 import { useState, useContext, createContext } from 'react';
 
-const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '';
+const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '+917428264402';
 const WHATSAPP_API_URL = 'https://api.whatsapp.com/send';
+
+const normalizePhone = (phone) => {
+  if (!phone) return '';
+  return phone.replace(/\D/g, '');
+};
 
 export const WhatsAppFloatContext = createContext();
 
@@ -9,10 +14,14 @@ export default function WhatsAppFloat() {
   const [isOpen, setIsOpen] = useState(false);
   const bottomOffset = useContext(WhatsAppFloatContext) || 'calc(15rem + env(safe-area-inset-bottom, 0))';
 
-  const handleWhatsAppClick = () => {
-    const message = "Hello! I'm interested in learning more about your properties.";
-    const url = `${WHATSAPP_API_URL}?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(message)}`;
-    window.open(url, '_blank');
+  const message = "Hello! I'm interested in learning more about your properties.";
+  const normalized = normalizePhone(WHATSAPP_NUMBER);
+  const url = normalized
+    ? `https://wa.me/${normalized}?text=${encodeURIComponent(message)}`
+    : `${WHATSAPP_API_URL}?text=${encodeURIComponent(message)}`;
+
+  const handleWhatsAppClick = (e) => {
+    // preserve behavior for non-link environments and close tooltip
     setIsOpen(false);
   };
 
@@ -27,8 +36,11 @@ export default function WhatsAppFloat() {
         </div>
       )}
 
-      {/* Main Button */}
-      <button
+      {/* Main Button (now an anchor link to WhatsApp) */}
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
         onClick={handleWhatsAppClick}
         onMouseEnter={() => setIsOpen(true)}
         onMouseLeave={() => setIsOpen(false)}
@@ -36,12 +48,12 @@ export default function WhatsAppFloat() {
         className="relative group bg-green-500 hover:bg-green-600 text-white rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300 flex-shrink-0 pointer-events-auto"
         aria-label="Chat on WhatsApp"
       >
-        <img 
-          src="/whatsapp.svg" 
-          alt="WhatsApp" 
+        <img
+          src="/whatsapp.svg"
+          alt="WhatsApp"
           className="w-6 h-6"
         />
-      </button>
+      </a>
 
       {/* Mobile Tooltip Alternative */}
       <style>{`
