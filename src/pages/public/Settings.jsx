@@ -217,17 +217,15 @@ function Settings() {
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Account Information</h2>
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-gray-500">Email Address</p>
-              <p className="text-gray-900 font-medium">{user?.email}</p>
-            </div>
-            <div>
               <p className="text-sm text-gray-500">Member Since</p>
               <p className="text-gray-900 font-medium">
-                {new Date(user?.created_at).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
+                {user?.created_at && !isNaN(new Date(user.created_at).getTime())
+                  ? new Date(user.created_at).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })
+                  : 'Date not available'}
               </p>
             </div>
           </div>

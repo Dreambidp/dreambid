@@ -105,10 +105,6 @@ function Dashboard() {
             <h2 className="text-lg font-semibold text-text-primary mb-4">Account Information</h2>
             <div className="space-y-3">
               <div>
-                <p className="text-sm text-text-muted">Email</p>
-                <p className="text-text-primary font-medium">{user?.email}</p>
-              </div>
-              <div>
                 <p className="text-sm text-text-muted">Full Name</p>
                 <p className="text-text-primary font-medium">{user?.full_name}</p>
               </div>
@@ -119,7 +115,13 @@ function Dashboard() {
               <div>
                 <p className="text-sm text-text-muted">Member Since</p>
                 <p className="text-text-primary font-medium">
-                  {new Date(user?.created_at).toLocaleDateString()}
+                  {user?.created_at && !isNaN(new Date(user.created_at).getTime())
+                    ? new Date(user.created_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })
+                    : 'Date not available'}
                 </p>
               </div>
             </div>
