@@ -284,7 +284,7 @@ router.post('/', authenticate, authorize('admin', 'staff'), uploadImages, [
   body('property_type').optional().trim(),
   body('reserve_price').isFloat({ min: 0 }),
   body('auction_date').isISO8601(),
-  body('zip_code').optional().matches(/^\d{6}$/).withMessage('Zip code must be exactly 6 digits'),
+  body('zip_code').optional({ checkFalsy: true }).matches(/^\d{6}$/).withMessage('Zip code must be exactly 6 digits'),
 ], async (req, res) => {
   try {
     console.log('🔍 Property creation request received');
