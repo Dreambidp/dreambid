@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { contactAPI } from '../../services/api';
-import { buildContactSubmissionData } from '../../utils/contactForm';
 
 function Contact() {
   const [formData, setFormData] = useState({
@@ -11,14 +10,12 @@ function Contact() {
     email: '',
     contactingAs: '',
     message: '',
-    attachments: [],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptNewsletter, setAcceptNewsletter] = useState(false);
   const [showTermsError, setShowTermsError] = useState(false);
   const termsRef = useRef(null);
-  const [dragActive, setDragActive] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,31 +26,6 @@ function Contact() {
       setFormData(prev => ({ ...prev, [name]: digitsOnly }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
-    }
-  };
-
-  const handleFileChange = (e) => {
-    const selectedFiles = Array.from(e.target.files || []);
-    setFormData(prev => ({ ...prev, attachments: selectedFiles }));
-  };
-
-  const handleDrag = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    const droppedFiles = Array.from(e.dataTransfer.files || []);
-    if (droppedFiles.length > 0) {
-      setFormData(prev => ({ ...prev, attachments: droppedFiles }));
     }
   };
 
@@ -83,10 +55,8 @@ function Contact() {
         return;
       }
 
-      const submitData = buildContactSubmissionData(formData);
-
-      // Make API request
-      await contactAPI.submit(submitData);
+      // Make API request with JSON data (no files)
+      await contactAPI.submit(formData);
 
       toast.success('Thank you! We will contact you soon.');
       setFormData({
@@ -95,7 +65,6 @@ function Contact() {
         email: '',
         contactingAs: '',
         message: '',
-        attachments: [],
       });
       setAcceptedTerms(false);
       setAcceptNewsletter(false);
@@ -262,44 +231,6 @@ function Contact() {
                     <option value="investor" className="bg-midnight-800">Investor</option>
                     <option value="other" className="bg-midnight-800">Other</option>
                   </select>
-                </div>
-
-                {/* File Upload */}
-                <div>
-                  <label htmlFor="attachment" className="block text-sm font-semibold text-text-primary mb-2">
-                    Attach Images or Documents (Optional)
-                  </label>
-                  <div
-                    onDragEnter={handleDrag}
-                    onDragLeave={handleDrag}
-                    onDragOver={handleDrag}
-                    onDrop={handleDrop}
-                    className={`relative border-2 border-dashed rounded-input p-4 transition cursor-pointer ${
-                      dragActive
-                        ? 'border-gold bg-midnight-800 bg-opacity-50'
-                        : 'border-midnight-700 bg-midnight-800 hover:border-midnight-600'
-                    }`}
-                  >
-                    <input
-                      type="file"
-                      id="attachment"
-                      onChange={handleFileChange}
-                      multiple
-                      accept="image/*,.pdf"
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    />
-                    <div className="text-center py-2">
-                      <svg className="w-8 h-8 text-text-muted mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                      </svg>
-                      <p className="text-text-primary text-sm">
-                        {formData.attachments.length > 0
-                          ? `Selected: ${formData.attachments.map((file) => file.name).join(', ')}`
-                          : 'Drag & drop your files here or click to select'}
-                      </p>
-                      <p className="text-text-muted text-xs mt-1">Images and PDFs up to 10MB each</p>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Message */}
