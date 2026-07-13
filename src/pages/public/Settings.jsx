@@ -64,7 +64,7 @@ function Settings() {
     e.preventDefault();
 
     if (!validatePasswordForm()) {
-      toast.error('Please fix the errors');
+      toast.error('Please check all required fields and try again');
       return;
     }
 
