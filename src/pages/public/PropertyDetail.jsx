@@ -482,44 +482,44 @@ function PropertyDetail() {
               {/* Property Details Card */}
               <div className="bg-midnight-900 border border-midnight-700 rounded-2xl shadow-sm p-6">
                 <h3 className="text-lg font-semibold text-text-primary mb-4">Property Details</h3>
-                <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-4">
                   {property.property_type && (
-                    <div className="grid grid-cols-1 gap-1 sm:grid-cols-[max-content_minmax(0,1fr)] sm:items-start sm:gap-4">
-                      <span className="text-sm text-text-secondary">Property Type</span>
+                    <div>
+                      <span className="text-xs text-text-secondary block">Property Type</span>
                       <span className="text-sm font-medium text-text-primary break-words leading-relaxed">{property.property_type.charAt(0).toUpperCase() + property.property_type.slice(1)}</span>
                     </div>
                   )}
-                  <div className="grid grid-cols-1 gap-1 sm:grid-cols-[max-content_minmax(0,1fr)] sm:items-start sm:gap-4">
-                    <span className="text-sm text-text-secondary">Area</span>
+                  <div>
+                    <span className="text-xs text-text-secondary block">Area</span>
                     <span className="text-sm font-medium text-text-primary break-words leading-relaxed">{(property.area || property.area_sqft) && (property.area || property.area_sqft) !== 0 ? `${formatNumber(property.area || property.area_sqft)} ${property.area_unit || 'sq.ft.'}` : 'NA'}</span>
                   </div>
                   {property.built_up_area && (
-                    <div className="grid grid-cols-1 gap-1 sm:grid-cols-[max-content_minmax(0,1fr)] sm:items-start sm:gap-4">
-                      <span className="text-sm text-text-secondary">Built-Up Area</span>
+                    <div>
+                      <span className="text-xs text-text-secondary block">Built-Up Area</span>
                       <span className="text-sm font-medium text-text-primary break-words leading-relaxed">{formatNumber(property.built_up_area)} {property.built_up_area_unit || 'sq.ft.'}</span>
                     </div>
                   )}
                   {property.total_area && (
-                    <div className="grid grid-cols-1 gap-1 sm:grid-cols-[max-content_minmax(0,1fr)] sm:items-start sm:gap-4">
-                      <span className="text-sm text-text-secondary">Total Area</span>
+                    <div>
+                      <span className="text-xs text-text-secondary block">Total Area</span>
                       <span className="text-sm font-medium text-text-primary break-words leading-relaxed">{formatNumber(property.total_area)} {property.total_area_unit || 'sq.ft.'}</span>
                     </div>
                   )}
                   {property.city && (
-                    <div className="grid grid-cols-1 gap-1 sm:grid-cols-[max-content_minmax(0,1fr)] sm:items-start sm:gap-4">
-                      <span className="text-sm text-text-secondary">City</span>
+                    <div>
+                      <span className="text-xs text-text-secondary block">City</span>
                       <span className="text-sm font-medium text-text-primary break-words leading-relaxed">{property.city}</span>
                     </div>
                   )}
                   {property.state && (
-                    <div className="grid grid-cols-1 gap-1 sm:grid-cols-[max-content_minmax(0,1fr)] sm:items-start sm:gap-4">
-                      <span className="text-sm text-text-secondary">State</span>
+                    <div>
+                      <span className="text-xs text-text-secondary block">State</span>
                       <span className="text-sm font-medium text-text-primary break-words leading-relaxed">{property.state}</span>
                     </div>
                   )}
                   {property.address && (
-                    <div className="grid grid-cols-1 gap-1 sm:grid-cols-[max-content_minmax(0,1fr)] sm:items-start sm:gap-4">
-                      <span className="text-sm text-text-secondary">Address</span>
+                    <div className="col-span-2">
+                      <span className="text-xs text-text-secondary block">Address</span>
                       <span className="text-sm font-medium text-text-primary break-words leading-relaxed">{property.address}</span>
                     </div>
                   )}
