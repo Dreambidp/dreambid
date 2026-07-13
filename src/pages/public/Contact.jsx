@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { contactAPI } from '../../services/api';
+import { buildContactSubmissionData } from '../../utils/contactForm';
 
 function Contact() {
   const [formData, setFormData] = useState({
@@ -10,11 +11,13 @@ function Contact() {
     email: '',
     contactingAs: '',
     message: '',
-    attachment: null,
+    attachments: [],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [acceptNewsletter, setAcceptNewsletter] = useState(false);
+  const [showTermsError, setShowTermsError] = useState(false);
+  const termsRef = useRef(null);
   const [dragActive, setDragActive] = useState(false);
 
   const handleChange = (e) => {
@@ -30,7 +33,8 @@ function Contact() {
   };
 
   const handleFileChange = (e) => {
-    setFormData(prev => ({ ...prev, attachment: e.target.files[0] }));
+    const selectedFiles = Array.from(e.target.files || []);
+    setFormData(prev => ({ ...prev, attachments: selectedFiles }));
   };
 
   const handleDrag = (e) => {
@@ -47,8 +51,9 @@ function Contact() {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setFormData(prev => ({ ...prev, attachment: e.dataTransfer.files[0] }));
+    const droppedFiles = Array.from(e.dataTransfer.files || []);
+    if (droppedFiles.length > 0) {
+      setFormData(prev => ({ ...prev, attachments: droppedFiles }));
     }
   };
 
@@ -57,6 +62,15 @@ function Contact() {
     setIsSubmitting(true);
 
     try {
+      // Ensure terms accepted (button is disabled normally, but handle Enter key submits)
+      if (!acceptedTerms) {
+        setShowTermsError(true);
+        setIsSubmitting(false);
+        // focus the checkbox for accessibility
+        if (termsRef?.current) termsRef.current.focus();
+        return;
+      }
+
       if (!formData.name || !formData.contactNumber || !formData.email) {
         toast.error('Please fill in all required fields');
         setIsSubmitting(false);
@@ -69,18 +83,7 @@ function Contact() {
         return;
       }
 
-      // Create FormData for multipart submission
-      const submitData = new FormData();
-      submitData.append('name', formData.name);
-      submitData.append('email', formData.email);
-      submitData.append('contactNumber', formData.contactNumber);
-      submitData.append('contactingAs', formData.contactingAs);
-      submitData.append('message', formData.message);
-      
-      // Add attachment if present
-      if (formData.attachment) {
-        submitData.append('attachment', formData.attachment);
-      }
+      const submitData = buildContactSubmissionData(formData);
 
       // Make API request
       await contactAPI.submit(submitData);
@@ -92,10 +95,11 @@ function Contact() {
         email: '',
         contactingAs: '',
         message: '',
-        attachment: null,
+        attachments: [],
       });
       setAcceptedTerms(false);
       setAcceptNewsletter(false);
+      setShowTermsError(false);
     } catch (error) {
       toast.error(error.response?.data?.message || 'Something went wrong. Please try again.');
     } finally {
@@ -263,7 +267,7 @@ function Contact() {
                 {/* File Upload */}
                 <div>
                   <label htmlFor="attachment" className="block text-sm font-semibold text-text-primary mb-2">
-                    Attachment (Optional)
+                    Attach Images or Documents (Optional)
                   </label>
                   <div
                     onDragEnter={handleDrag}
@@ -280,6 +284,8 @@ function Contact() {
                       type="file"
                       id="attachment"
                       onChange={handleFileChange}
+                      multiple
+                      accept="image/*,.pdf"
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     />
                     <div className="text-center py-2">
@@ -287,11 +293,11 @@ function Contact() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                       </svg>
                       <p className="text-text-primary text-sm">
-                        {formData.attachment
-                          ? `Selected: ${formData.attachment.name}`
-                          : 'Drag & drop your file here or click to select'}
+                        {formData.attachments.length > 0
+                          ? `Selected: ${formData.attachments.map((file) => file.name).join(', ')}`
+                          : 'Drag & drop your files here or click to select'}
                       </p>
-                      <p className="text-text-muted text-xs mt-1">Max file size: 5MB</p>
+                      <p className="text-text-muted text-xs mt-1">Images and PDFs up to 10MB each</p>
                     </div>
                   </div>
                 </div>
@@ -314,24 +320,37 @@ function Contact() {
 
                 {/* Checkboxes */}
                 <div className="space-y-3 py-4 border-y border-midnight-700">
-                  <label className="flex items-start cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={acceptedTerms}
-                      onChange={(e) => setAcceptedTerms(e.target.checked)}
-                      className="mt-1 w-4 h-4 rounded bg-midnight-800 border-midnight-700 text-gold focus:ring-gold cursor-pointer"
-                    />
-                    <span className="ml-3 text-sm text-text-secondary">
-                      I agree to the{' '}
-                      <Link to="/privacy" className="text-gold hover:text-gold-hover">
-                        Privacy Policy
-                      </Link>
-                      {' '}and{' '}
-                      <Link to="/terms" className="text-gold hover:text-gold-hover">
-                        Terms of Service
-                      </Link>
-                    </span>
-                  </label>
+                  <div>
+                    <label className="flex items-start cursor-pointer">
+                      <input
+                        ref={termsRef}
+                        type="checkbox"
+                        checked={acceptedTerms}
+                        onChange={(e) => { setAcceptedTerms(e.target.checked); if (e.target.checked) setShowTermsError(false); }}
+                        className="mt-1 w-4 h-4 rounded bg-midnight-800 border-midnight-700 text-gold focus:ring-gold cursor-pointer"
+                        aria-required="true"
+                        aria-invalid={showTermsError}
+                      />
+                      <span className="ml-3 text-sm text-text-secondary">
+                        I agree to the{' '}
+                        <Link to="/privacy" className="text-gold hover:text-gold-hover">
+                          Privacy Policy
+                        </Link>
+                        {' '}and{' '}
+                        <Link to="/terms" className="text-gold hover:text-gold-hover">
+                          Terms of Service
+                        </Link>
+                        <span className="text-red-400"> *</span>
+                      </span>
+                    </label>
+
+                    <div role="status" aria-live="polite" className="mt-2">
+                      {showTermsError && (
+                        <p className="text-sm text-red-400">You must accept the Privacy Policy and Terms of Service to continue.</p>
+                      )}
+                    </div>
+                  </div>
+
                   <label className="flex items-start cursor-pointer">
                     <input
                       type="checkbox"
@@ -348,7 +367,8 @@ function Contact() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !acceptedTerms}
+                  title={!acceptedTerms ? 'Please accept Privacy Policy and Terms of Service' : undefined}
                   className="w-full px-6 py-3 bg-gold text-midnight-950 rounded-btn hover:bg-gold-hover disabled:opacity-50 disabled:cursor-not-allowed transition font-bold text-base"
                 >
                   {isSubmitting ? 'Sending...' : 'Send Message'}

@@ -1,9 +1,10 @@
 import express from 'express';
+import path from 'path';
 import { body, validationResult, query } from 'express-validator';
 import pool from '../config/database.js';
 import jwt from 'jsonwebtoken';
 import { authenticate, authorize } from '../middleware/auth.js';
-import { uploadImage } from '../middleware/upload.js';
+import { uploadAttachments } from '../middleware/upload.js';
 
 const router = express.Router();
 
@@ -182,7 +183,7 @@ router.put('/:id/status', authenticate, authorize('admin', 'staff'),
 // @route   POST /api/contact
 // @desc    Handle contact form submissions with optional file attachment
 // @access  Public
-router.post('/contact', uploadImage, [
+router.post('/contact', uploadAttachments, [
   body('name').trim().notEmpty().withMessage('Name is required'),
   body('email').isEmail().normalizeEmail().withMessage('Valid email is required'),
   body('contactNumber').trim().notEmpty().matches(/^\d{10}$/).withMessage('Phone number must be exactly 10 digits'),
@@ -195,22 +196,28 @@ router.post('/contact', uploadImage, [
     }
 
     const { name, email, contactNumber, contactingAs, message } = req.body;
-    const attachmentData = req.file?.buffer || null;
-    const attachmentMimeType = req.file?.mimetype || null;
-    const attachmentName = req.file?.originalname || null;
+    const uploadedAttachments = Array.isArray(req.files) ? req.files : [];
+    const attachmentMetadata = uploadedAttachments.map((file) => {
+      const relativePath = path.relative(path.join(process.cwd(), 'uploads'), file.path).replace(/\\/g, '/');
+      return {
+        originalName: file.originalname,
+        storedName: file.filename,
+        mimeType: file.mimetype,
+        size: file.size,
+        url: `/uploads/${relativePath}`
+      };
+    });
 
     // Store contact form submission in database
     const result = await pool.query(
-      `INSERT INTO enquiries (name, email, phone, message, enquiry_type, property_title, property_address)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
-       RETURNING id, name, email, phone, created_at`,
-      [name, email, contactNumber, message || null, 'contact', contactingAs || 'Contact Form', 'General Inquiry']
+      `INSERT INTO enquiries (name, email, phone, message, enquiry_type, property_title, property_address, attachment_files)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+       RETURNING id, name, email, phone, created_at, attachment_files`,
+      [name, email, contactNumber, message || null, 'contact', contactingAs || 'Contact Form', 'General Inquiry', JSON.stringify(attachmentMetadata)]
     );
 
-    // If there's an attachment, you might store it separately or create a contacts table
-    // For now, just log it
-    if (attachmentData) {
-      console.log(`Contact form attachment: ${attachmentName} (${attachmentMimeType}) - ${attachmentData.length} bytes`);
+    if (attachmentMetadata.length > 0) {
+      console.log(`Contact form attachments saved: ${attachmentMetadata.map((file) => file.originalName).join(', ')}`);
     }
 
     res.status(201).json({ 

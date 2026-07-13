@@ -135,6 +135,7 @@ CREATE TABLE enquiries (
   status VARCHAR(50) DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'resolved', 'closed', 'not_interested', 'unable_to_connect', 'call_later')),
   property_title VARCHAR(255),
   property_address VARCHAR(255),
+  attachment_files JSONB DEFAULT '[]'::jsonb,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

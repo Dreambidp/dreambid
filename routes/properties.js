@@ -5,6 +5,7 @@ import { authenticate, authorize } from '../middleware/auth.js';
 import { uploadImages, uploadPdf, getFileUrl } from '../middleware/upload.js';
 import { executeWithRetry } from '../utils/dbRetry.js';
 import { buildAuctionStatusUpdateQuery } from '../utils/propertyQueries.js';
+import { parseAndValidateDecimalField } from '../utils/propertyValidation.js';
 
 const router = express.Router();
 
@@ -337,25 +338,28 @@ router.post('/', authenticate, authorize('admin', 'staff'), uploadImages, [
       }
     }
 
-    // Validate numeric fields before database insert to prevent NaN/invalid values
+    // Validate numeric fields before database insert to prevent NaN/invalid values and overflow
     console.log('🔢 Validating numeric fields...');
-    
-    const validatedReservePrice = parseFloat(reserve_price);
-    if (isNaN(validatedReservePrice) || validatedReservePrice < 0) {
-      console.warn('❌ Invalid reserve price:', reserve_price);
-      return res.status(400).json({ 
-        message: 'Invalid reserve price. Must be a valid positive number.' 
-      });
+
+    const validatedReservePrice = parseAndValidateDecimalField(reserve_price, {
+      label: 'Reserve price',
+      max: 9999999999999.99
+    });
+    if (!validatedReservePrice.isValid) {
+      console.warn('❌ Invalid reserve price:', reserve_price, validatedReservePrice.error);
+      return res.status(400).json({ message: `Invalid reserve price. ${validatedReservePrice.error}` });
     }
-    console.log('✅ Reserve price valid:', validatedReservePrice);
+    console.log('✅ Reserve price valid:', validatedReservePrice.value);
 
     // Validate optional numeric fields
-    const validatedAreaSqft = area_sqft ? parseFloat(area_sqft) : null;
-    if (area_sqft && (isNaN(validatedAreaSqft) || validatedAreaSqft < 0)) {
-      console.warn('❌ Invalid area:', area_sqft);
-      return res.status(400).json({ 
-        message: 'Invalid area. Must be a valid positive number.' 
-      });
+    const validatedAreaSqft = parseAndValidateDecimalField(area_sqft, {
+      label: 'Area',
+      max: 99999999.99,
+      allowEmpty: true
+    });
+    if (!validatedAreaSqft.isValid) {
+      console.warn('❌ Invalid area:', area_sqft, validatedAreaSqft.error);
+      return res.status(400).json({ message: `Invalid area. ${validatedAreaSqft.error}` });
     }
 
     const validatedBedrooms = bedrooms ? parseInt(bedrooms) : null;
@@ -382,35 +386,43 @@ router.post('/', authenticate, authorize('admin', 'staff'), uploadImages, [
       });
     }
 
-    const validatedEstimatedMarketValue = estimated_market_value ? parseFloat(estimated_market_value) : null;
-    if (estimated_market_value && (isNaN(validatedEstimatedMarketValue) || validatedEstimatedMarketValue < 0)) {
-      console.warn('❌ Invalid estimated market value:', estimated_market_value);
-      return res.status(400).json({ 
-        message: 'Invalid estimated market value. Must be a valid positive number.' 
-      });
+    const validatedEstimatedMarketValue = parseAndValidateDecimalField(estimated_market_value, {
+      label: 'Estimated market value',
+      max: 9999999999999.99,
+      allowEmpty: true
+    });
+    if (!validatedEstimatedMarketValue.isValid) {
+      console.warn('❌ Invalid estimated market value:', estimated_market_value, validatedEstimatedMarketValue.error);
+      return res.status(400).json({ message: `Invalid estimated market value. ${validatedEstimatedMarketValue.error}` });
     }
 
-    const validatedBuiltUpArea = built_up_area ? parseFloat(built_up_area) : null;
-    if (built_up_area && (isNaN(validatedBuiltUpArea) || validatedBuiltUpArea < 0)) {
-      console.warn('❌ Invalid built-up area:', built_up_area);
-      return res.status(400).json({ 
-        message: 'Invalid built-up area. Must be a valid positive number.' 
-      });
+    const validatedBuiltUpArea = parseAndValidateDecimalField(built_up_area, {
+      label: 'Built-up area',
+      max: 99999999.99,
+      allowEmpty: true
+    });
+    if (!validatedBuiltUpArea.isValid) {
+      console.warn('❌ Invalid built-up area:', built_up_area, validatedBuiltUpArea.error);
+      return res.status(400).json({ message: `Invalid built-up area. ${validatedBuiltUpArea.error}` });
     }
 
-    const validatedTotalArea = total_area ? parseFloat(total_area) : null;
-    if (total_area && (isNaN(validatedTotalArea) || validatedTotalArea < 0)) {
-      console.warn('❌ Invalid total area:', total_area);
-      return res.status(400).json({ 
-        message: 'Invalid total area. Must be a valid positive number.' 
-      });
+    const validatedTotalArea = parseAndValidateDecimalField(total_area, {
+      label: 'Total area',
+      max: 99999999.99,
+      allowEmpty: true
+    });
+    if (!validatedTotalArea.isValid) {
+      console.warn('❌ Invalid total area:', total_area, validatedTotalArea.error);
+      return res.status(400).json({ message: `Invalid total area. ${validatedTotalArea.error}` });
     }
 
-    const validatedEmd = emd ? parseFloat(emd) : null;
-    if (emd && (isNaN(validatedEmd) || validatedEmd < 0)) {
-      return res.status(400).json({ 
-        message: 'Invalid EMD. Must be a valid positive number.' 
-      });
+    const validatedEmd = parseAndValidateDecimalField(emd, {
+      label: 'EMD',
+      max: 9999999999999.99,
+      allowEmpty: true
+    });
+    if (!validatedEmd.isValid) {
+      return res.status(400).json({ message: `Invalid EMD. ${validatedEmd.error}` });
     }
 
     // Validate auction date
@@ -457,14 +469,14 @@ router.post('/', authenticate, authorize('admin', 'staff'), uploadImages, [
         [
           title, description || null, property_type || null, address, city,
           state || null, zip_code || null, country || 'India',
-          validatedAreaSqft, req.body.area_unit || 'sq ft',
+          validatedAreaSqft.value, req.body.area_unit || 'sq ft',
           validatedBedrooms, validatedBathrooms,
           validatedFloors,
-          validatedReservePrice, auctionDate, auction_time || null, coverImageUrl, req.user.id,
-          validatedEstimatedMarketValue,
-          validatedBuiltUpArea, req.body.built_up_area_unit || 'sq ft',
-          validatedTotalArea, req.body.total_area_unit || 'sq ft',
-          validatedEmd,
+          validatedReservePrice.value, auctionDate, auction_time || null, coverImageUrl, req.user.id,
+          validatedEstimatedMarketValue.value,
+          validatedBuiltUpArea.value, req.body.built_up_area_unit || 'sq ft',
+          validatedTotalArea.value, req.body.total_area_unit || 'sq ft',
+          validatedEmd.value,
           possession_type || null,
           application_end_date ? new Date(application_end_date) : null,
           map_embed_code || null,
@@ -679,9 +691,17 @@ router.put('/:id', authenticate, authorize('admin', 'staff'), uploadImages, asyn
       values.push(longitude && longitude !== '' ? parseFloat(longitude) : null);
     }
     if (reserve_price !== undefined) {
+      const validatedReservePrice = parseAndValidateDecimalField(reserve_price, {
+        label: 'Reserve price',
+        max: 9999999999999.99
+      });
+      if (!validatedReservePrice.isValid) {
+        return res.status(400).json({ message: `Invalid reserve price. ${validatedReservePrice.error}` });
+      }
+
       paramCount++;
       updates.push(`reserve_price = $${paramCount}`);
-      values.push(parseFloat(reserve_price));
+      values.push(validatedReservePrice.value);
     }
     if (auction_date !== undefined) {
       paramCount++;
@@ -727,24 +747,60 @@ router.put('/:id', authenticate, authorize('admin', 'staff'), uploadImages, asyn
       values.push(auction_time || null);
     }
     if (estimated_market_value !== undefined) {
+      const validatedEstimatedMarketValue = parseAndValidateDecimalField(estimated_market_value, {
+        label: 'Estimated market value',
+        max: 9999999999999.99,
+        allowEmpty: true
+      });
+      if (!validatedEstimatedMarketValue.isValid) {
+        return res.status(400).json({ message: `Invalid estimated market value. ${validatedEstimatedMarketValue.error}` });
+      }
+
       paramCount++;
       updates.push(`estimated_market_value = $${paramCount}`);
-      values.push(estimated_market_value ? parseFloat(estimated_market_value) : null);
+      values.push(validatedEstimatedMarketValue.value);
     }
     if (built_up_area !== undefined) {
+      const validatedBuiltUpArea = parseAndValidateDecimalField(built_up_area, {
+        label: 'Built-up area',
+        max: 99999999.99,
+        allowEmpty: true
+      });
+      if (!validatedBuiltUpArea.isValid) {
+        return res.status(400).json({ message: `Invalid built-up area. ${validatedBuiltUpArea.error}` });
+      }
+
       paramCount++;
       updates.push(`built_up_area = $${paramCount}`);
-      values.push(built_up_area ? parseFloat(built_up_area) : null);
+      values.push(validatedBuiltUpArea.value);
     }
     if (total_area !== undefined) {
+      const validatedTotalArea = parseAndValidateDecimalField(total_area, {
+        label: 'Total area',
+        max: 99999999.99,
+        allowEmpty: true
+      });
+      if (!validatedTotalArea.isValid) {
+        return res.status(400).json({ message: `Invalid total area. ${validatedTotalArea.error}` });
+      }
+
       paramCount++;
       updates.push(`total_area = $${paramCount}`);
-      values.push(total_area ? parseFloat(total_area) : null);
+      values.push(validatedTotalArea.value);
     }
     if (emd !== undefined) {
+      const validatedEmd = parseAndValidateDecimalField(emd, {
+        label: 'EMD',
+        max: 9999999999999.99,
+        allowEmpty: true
+      });
+      if (!validatedEmd.isValid) {
+        return res.status(400).json({ message: `Invalid EMD. ${validatedEmd.error}` });
+      }
+
       paramCount++;
       updates.push(`emd = $${paramCount}`);
-      values.push(emd ? parseFloat(emd) : null);
+      values.push(validatedEmd.value);
     }
     if (possession_type !== undefined) {
       paramCount++;

@@ -22,11 +22,11 @@ export const shareProperty = (property) => {
     ? new Date(property.auction_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
     : 'N/A';
   const propertyUrl = `${window.location.origin}/properties/${property.id}`;
-  const whatsappDisplay = WHATSAPP_NUMBER ? formatIndianPhone(WHATSAPP_NUMBER) : '91-7428 264 402';
   const supportPhone = formatIndianPhone(SUPPORT_PHONE);
 
-  const message = `${fullTitle}\nReserve Price: ${reservePrice}\nApplication Deadline: ${auctionDate}\n\nProperty Link for complete details: ${propertyUrl} and fill the Expression of Interest form to express your interest.\n\nCall: ${supportPhone} or WhatsApp: ${whatsappDisplay} for more details`;
-  const url = `${WHATSAPP_API_URL}/?phone=${WHATSAPP_NUMBER.replace(/\D/g, '')}&text=${encodeURIComponent(message)}&type=phone_number&app_absent=0`;
+  const message = `${fullTitle}\nReserve Price: ${reservePrice}\nApplication Deadline: ${auctionDate}\n\nProperty Link: ${propertyUrl}\n\nFor more details, contact us at: ${supportPhone}`;
+  // Open WhatsApp Web/App in share mode - lets user choose recipient from contacts
+  const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
   window.open(url, '_blank');
 };
 

@@ -448,6 +448,7 @@ function PropertyDetail() {
                     <button
                       onClick={() => shareProperty(property)}
                       className="p-2 rounded-lg hover:bg-[#F7F9FC] transition-colors"
+                      title="Share property on WhatsApp"
                     >
                       <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
                     </button>
@@ -1066,13 +1067,15 @@ function PropertyDetail() {
 
               <div className="mt-6 pt-6 border-t border-gray-700">
                 <p className="text-xs text-gray-400 mb-3">Or contact us directly:</p>
-                <button
-                  onClick={() => shareProperty(property)}
+                <a
+                  href="https://wa.me/917428264402?text=Hi%20I%20would%20like%20to%20know%20more%20about%20this%20property"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-full px-4 py-2.5 bg-green-500 text-white rounded-xl hover:bg-green-600 transition flex items-center justify-center gap-2 text-sm font-medium"
                 >
                   <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
                   WhatsApp
-                </button>
+                </a>
               </div>
             </div>
 
@@ -1095,13 +1098,15 @@ function PropertyDetail() {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => shareProperty(property)}
+                <a
+                  href="https://wa.me/917428264402?text=Hi%20I%20would%20like%20to%20know%20more%20about%20this%20property"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-full px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl transition font-semibold text-sm flex items-center justify-center gap-2"
                 >
                   <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
                   WhatsApp Us
-                </button>
+                </a>
               </div>
 
               <div className="pt-4 border-t border-gray-200">
@@ -1151,13 +1156,15 @@ function PropertyDetail() {
           >
             I am interested
           </button>
-          <button
-            onClick={() => shareProperty(property)}
+          <a
+            href="https://wa.me/917428264402?text=Hi%20I%20would%20like%20to%20know%20more%20about%20this%20property"
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex-1 px-4 py-3 bg-midnight-700 text-gold border border-gold rounded-lg hover:bg-midnight-600 transition font-semibold text-sm flex items-center justify-center gap-2"
           >
             <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
             Contact Us
-          </button>
+          </a>
         </div>
       </div>
 

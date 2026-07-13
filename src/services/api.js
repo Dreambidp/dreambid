@@ -106,9 +106,7 @@ export const enquiriesAPI = {
 };
 
 export const contactAPI = {
-  submit: (formData) => api.post('/enquiries/contact', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  }),
+  submit: (formData) => api.post('/enquiries/contact', formData),
 };
 
 export const interestsAPI = {

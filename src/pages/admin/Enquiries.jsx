@@ -3,6 +3,24 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { enquiriesAPI } from '../../services/api';
 import toast from 'react-hot-toast';
 
+const getAttachmentList = (enquiry) => {
+  if (!enquiry?.attachment_files) return [];
+
+  if (Array.isArray(enquiry.attachment_files)) {
+    return enquiry.attachment_files;
+  }
+
+  if (typeof enquiry.attachment_files === 'string') {
+    try {
+      return JSON.parse(enquiry.attachment_files);
+    } catch (error) {
+      return [];
+    }
+  }
+
+  return [];
+};
+
 function Enquiries() {
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
@@ -187,6 +205,31 @@ function Enquiries() {
                   <p className="text-sm text-text-primary bg-midnight-800 rounded-lg p-3">
                     {selectedEnquiry.message}
                   </p>
+                </div>
+              )}
+
+              {/* Attachments */}
+              {getAttachmentList(selectedEnquiry).length > 0 && (
+                <div className="pt-4 border-t border-midnight-700">
+                  <h3 className="text-sm font-semibold text-gold uppercase tracking-wide mb-3">Attachments</h3>
+                  <div className="space-y-3">
+                    {getAttachmentList(selectedEnquiry).map((attachment, index) => (
+                      <div key={`${attachment.url || attachment.storedName || index}`} className="rounded-lg border border-midnight-700 bg-midnight-800 p-3">
+                        {attachment.mimeType?.startsWith('image/') ? (
+                          <a href={attachment.url} target="_blank" rel="noreferrer" className="block">
+                            <img src={attachment.url} alt={attachment.originalName || 'Attachment'} className="max-h-40 w-full rounded object-cover" />
+                          </a>
+                        ) : (
+                          <a href={attachment.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-gold hover:text-gold-hover">
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            <span>{attachment.originalName || 'Download attachment'}</span>
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
