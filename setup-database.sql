@@ -125,7 +125,7 @@ CREATE TABLE property_images (
 -- ============================================================
 CREATE TABLE enquiries (
   id SERIAL PRIMARY KEY,
-  property_id INTEGER NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+  property_id INTEGER REFERENCES properties(id) ON DELETE CASCADE,
   user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
   name VARCHAR(255) NOT NULL,
   email VARCHAR(255),
