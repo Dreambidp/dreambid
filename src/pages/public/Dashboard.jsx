@@ -8,7 +8,6 @@ function Dashboard() {
   const navigate = useNavigate();
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState([]);
 
   useEffect(() => {
     if (!user) {
@@ -23,12 +22,10 @@ function Dashboard() {
         // Fetch user activity
         const activityRes = await api.get('/user/activity?limit=10');
         setActivities(activityRes.data.activities || []);
-        setStats(activityRes.data.stats || []);
       } catch (error) {
         console.error('Error fetching user data:', error);
         // Don't show error toast, just set empty data
         setActivities([]);
-        setStats([]);
       } finally {
         setLoading(false);
       }
@@ -124,23 +121,6 @@ function Dashboard() {
                     : 'Date not available'}
                 </p>
               </div>
-            </div>
-          </div>
-
-          {/* Activity Summary */}
-          <div className="bg-midnight-900 border border-midnight-700 rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-text-primary mb-4">Activity Summary (30 days)</h2>
-            <div className="space-y-3">
-              {stats.length > 0 ? (
-                stats.map((stat, idx) => (
-                  <div key={idx} className="flex justify-between">
-                    <span className="text-text-secondary">{stat.action}</span>
-                    <span className="font-semibold text-text-primary">{stat.count}</span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-text-muted">No activity in the last 30 days</p>
-              )}
             </div>
           </div>
 

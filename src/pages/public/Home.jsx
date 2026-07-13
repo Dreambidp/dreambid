@@ -393,11 +393,13 @@ function Home() {
         return (
           <div
             className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+            style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1rem)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}
             onClick={() => setSelectedImageModal(null)}
           >
             <button
               onClick={() => setSelectedImageModal(null)}
-              className="absolute top-4 right-4 text-white hover:text-red-500 transition-colors z-50 bg-red-600 hover:bg-red-700 rounded-full p-2 shadow-lg"
+              className="absolute right-4 text-white hover:text-red-500 transition-colors z-50 bg-red-600 hover:bg-red-700 rounded-full p-2 shadow-lg"
+              style={{ top: 'calc(env(safe-area-inset-top, 0px) + 1rem)' }}
               aria-label="Close"
               title="Close (ESC)"
             >
@@ -440,6 +442,13 @@ function Home() {
                   e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23333" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
                 }}
               />
+              <button
+                type="button"
+                onClick={() => setSelectedImageModal(null)}
+                className="mt-4 px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 transition"
+              >
+                Close
+              </button>
               {allImages.length > 1 && (
                 <div className="text-center text-white mt-4">
                   <span className="text-sm">{imageModalIndex + 1} / {allImages.length}</span>

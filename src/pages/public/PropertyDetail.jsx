@@ -362,13 +362,15 @@ function PropertyDetail() {
         return (
           <div
             className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+            style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1rem)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}
             onClick={() => setShowImageModal(false)}
           >
             <button
               onClick={() => setShowImageModal(false)}
-              className="absolute top-4 right-4 text-white hover:text-red-500 transition-colors z-50 bg-red-600 hover:bg-red-700 rounded-full p-2 shadow-lg"
-            aria-label="Close"
-            title="Close (ESC)"
+              className="absolute right-4 text-white hover:text-red-500 transition-colors z-50 bg-red-600 hover:bg-red-700 rounded-full p-2 shadow-lg"
+              style={{ top: 'calc(env(safe-area-inset-top, 0px) + 1rem)' }}
+              aria-label="Close"
+              title="Close (ESC)"
             >
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -410,6 +412,13 @@ function PropertyDetail() {
                   e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23ddd" width="400" height="300"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
                 }}
               />
+              <button
+                type="button"
+                onClick={() => setShowImageModal(false)}
+                className="mt-4 px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 transition"
+              >
+                Close
+              </button>
               {allImages.length > 1 && (
                 <div className="text-center text-white pt-4">
                   <span className="text-sm">{selectedImageIndex + 1} / {allImages.length}</span>
