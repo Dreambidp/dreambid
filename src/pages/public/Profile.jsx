@@ -76,10 +76,13 @@ function Profile() {
       const formDataWithFile = new FormData();
       formDataWithFile.append('photo', profilePhoto);
 
-      await api.post('/user/upload-photo', formDataWithFile);
+      await api.post('/user/upload-photo', formDataWithFile, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
       await fetchUser();
       setProfilePhoto(null);
+      setPreviewUrl(null);
       toast.success('Profile photo uploaded successfully');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to upload photo');
