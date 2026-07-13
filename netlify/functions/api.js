@@ -27,6 +27,7 @@ const app = express();
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'https://dreambidp.netlify.app',
   'https://dreambidp.netlify.app',
+  'https://dreambidpp.netlify.app',
   '*' // Allow all origins for mobile app
 ];
 

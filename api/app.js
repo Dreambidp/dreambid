@@ -24,6 +24,7 @@ const app = express();
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'https://dreambidp.netlify.app',
   'https://dreambidp.netlify.app',
+  'https://dreambidpp.netlify.app',
   'https://dreambid.netlify.app',
   'https://dreambid-new.netlify.app',
   'http://localhost:3000',
