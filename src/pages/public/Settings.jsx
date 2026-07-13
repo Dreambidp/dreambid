@@ -155,7 +155,7 @@ function Settings() {
 
             {/* New Password */}
             <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="newPassword" className="block text-sm font-medium text-text-primary mb-1">
                 New Password
               </label>
               <input
@@ -165,8 +165,8 @@ function Settings() {
                 value={passwordForm.newPassword}
                 onChange={handlePasswordChange}
                 placeholder="At least 8 characters"
-                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.newPassword ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold bg-midnight-800 text-text-primary placeholder-text-muted ${
+                  errors.newPassword ? 'border-red-500' : 'border-midnight-700'
                 }`}
               />
               {errors.newPassword && (
@@ -176,7 +176,7 @@ function Settings() {
 
             {/* Confirm Password */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-text-primary mb-1">
                 Confirm New Password
               </label>
               <input
@@ -185,8 +185,8 @@ function Settings() {
                 name="confirmPassword"
                 value={passwordForm.confirmPassword}
                 onChange={handlePasswordChange}
-                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-gold bg-midnight-800 text-text-primary placeholder-text-muted ${
+                  errors.confirmPassword ? 'border-red-500' : 'border-midnight-700'
                 }`}
               />
               {errors.confirmPassword && (
