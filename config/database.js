@@ -76,26 +76,32 @@ if (databaseUrl) {
 
 const pool = new Pool(dbConfig);
 
-// Keep DB warm - ping every 30 seconds to prevent sleep/cold start
+// Keep DB warm - ping every 20 seconds to prevent idle connection termination
 const keepAliveInterval = setInterval(async () => {
   try {
     await pool.query('SELECT 1');
   } catch (err) {
     console.warn('⚠️  Keep-alive ping failed:', err.message);
   }
-}, 30000); // Every 30 seconds
+}, 20000); // Every 20 seconds (more frequent for Railway's idle timeout)
 
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  // Don't exit process, just log the error
-  process.exitCode = -1;
+// Error handler for idle connections
+pool.on('error', (err, client) => {
+  console.error('Unexpected error on idle client:', err.message);
+  // Log but don't exit - connection pool will handle reconnection
+  // This prevents cascading failures from terminated idle connections
 });
 
 // Graceful shutdown
 process.on('SIGINT', () => {
   clearInterval(keepAliveInterval);
-  pool.end();
-  process.exit(0);
+  pool.end().then(() => {
+    console.log('Connection pool closed');
+    process.exit(0);
+  }).catch((err) => {
+    console.error('Error closing pool:', err);
+    process.exit(1);
+  });
 });
 
 process.on('SIGTERM', () => {
