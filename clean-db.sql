@@ -131,7 +131,7 @@ CREATE TABLE enquiries (
   email VARCHAR(255),
   phone VARCHAR(20) NOT NULL CHECK (phone ~ '^\d{10}$'),
   message TEXT,
-  enquiry_type VARCHAR(50) DEFAULT 'general' CHECK (enquiry_type IN ('general', 'bid', 'inspection', 'complaint')),
+  enquiry_type VARCHAR(50) DEFAULT 'general' CHECK (enquiry_type IN ('general', 'bid', 'inspection', 'complaint', 'contact')),
   status VARCHAR(50) DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'resolved', 'closed', 'not_interested', 'unable_to_connect', 'call_later')),
   property_title VARCHAR(255),
   property_address VARCHAR(255),
