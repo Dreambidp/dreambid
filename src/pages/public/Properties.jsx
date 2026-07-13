@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from 'react-query';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { propertiesAPI, interestsAPI } from '../../services/api';
 import { shareProperty } from '../../utils/whatsapp';
 import { getImageUrl } from '../../utils/imageUrl';
@@ -26,6 +26,7 @@ function useDebounce(value, delay) {
 
 function Properties() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { toggleShortlist, isShortlisted } = useShortlist();
   
   // Budget range mapping
@@ -209,7 +210,11 @@ function Properties() {
                     return (
                       <div
                         key={property.id}
-                        className="card overflow-hidden hover:shadow-2xl transition-all duration-300"
+                        className="card overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer"
+                        onClick={() => {
+                          handleView(property.id);
+                          navigate(`/properties/${property.id}`);
+                        }}
                       >
                         {/* Image Section */}
                         <div className="relative h-56 bg-midnight-800 overflow-hidden group">

@@ -76,11 +76,7 @@ function Profile() {
       const formDataWithFile = new FormData();
       formDataWithFile.append('photo', profilePhoto);
 
-      await api.post('/user/upload-photo', formDataWithFile, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      await api.post('/user/upload-photo', formDataWithFile);
 
       await fetchUser();
       setProfilePhoto(null);
@@ -192,19 +188,6 @@ function Profile() {
           {/* Profile Information Form */}
           <form onSubmit={handleUpdateProfile} className="space-y-6">
             <h2 className="text-lg font-semibold text-text-primary">Personal Information</h2>
-
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-text-primary mb-1">
-                Email Address (Read-only)
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={user?.email || ''}
-                disabled
-                className="w-full px-4 py-2 border border-midnight-700 rounded-lg bg-midnight-800 text-text-muted cursor-not-allowed"
-              />
-            </div>
 
             <div>
               <label htmlFor="full_name" className="block text-sm font-medium text-text-primary mb-1">

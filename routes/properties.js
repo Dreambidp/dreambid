@@ -6,6 +6,7 @@ import { uploadImages, uploadPdf, getFileUrl } from '../middleware/upload.js';
 import { executeWithRetry } from '../utils/dbRetry.js';
 import { buildAuctionStatusUpdateQuery } from '../utils/propertyQueries.js';
 import { parseAndValidateDecimalField } from '../utils/propertyValidation.js';
+import UserActivity from '../models/UserActivity.js';
 
 const router = express.Router();
 
@@ -1046,6 +1047,25 @@ router.get('/:id', async (req, res) => {
     const incrementViewCount = String(req.query.increment_view_count || 'true').toLowerCase() !== 'false';
     if (incrementViewCount) {
       await pool.query('UPDATE properties SET views_count = views_count + 1 WHERE id = $1', [id]);
+      
+      // Log activity if user is authenticated
+      const token = req.header('Authorization')?.replace('Bearer ', '');
+      if (token) {
+        try {
+          const jwt = await import('jsonwebtoken').then(m => m.default);
+          const decoded = jwt.verify(token, process.env.JWT_SECRET);
+          await UserActivity.log(
+            decoded.userId,
+            'property_viewed',
+            'property_interaction',
+            { property_id: id, property_title: property.title },
+            req.ip,
+            req.get('user-agent')
+          ).catch(() => {}); // Don't fail the request if logging fails
+        } catch (e) {
+          // Token invalid or JWT verification failed, skip logging
+        }
+      }
     }
 
     res.json({ message: 'Property fetched successfully', data: { property } });

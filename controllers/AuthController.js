@@ -60,7 +60,8 @@ class AuthController {
           id: user.id,
           phone: user.phone,
           full_name: user.full_name,
-          role: user.role
+          role: user.role,
+          created_at: user.created_at
         }
       });
     } catch (error) {
@@ -142,7 +143,8 @@ class AuthController {
           email: user.email,
           full_name: user.full_name,
           phone: user.phone,
-          role: user.role
+          role: user.role,
+          created_at: user.created_at
         }
       });
     } catch (error) {

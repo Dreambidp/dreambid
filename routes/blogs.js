@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import { authenticate, authorize } from '../middleware/auth.js';
 import pool from '../config/database.js';
+import UserActivity from '../models/UserActivity.js';
 
 const router = express.Router();
 
@@ -113,16 +114,36 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Blog not found' });
     }
 
+    const blog = result.rows[0];
+
     // Fetch associated images
     const imagesResult = await pool.query(
       'SELECT * FROM blog_images WHERE blog_id = $1 ORDER BY image_order ASC',
       [id]
     );
 
+    // Log activity if user is authenticated
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        await UserActivity.log(
+          decoded.userId,
+          'blog_viewed',
+          'blog_interaction',
+          { blog_id: id, blog_title: blog.title },
+          req.ip,
+          req.get('user-agent')
+        ).catch(() => {}); // Don't fail the request if logging fails
+      } catch (e) {
+        // Token invalid or JWT verification failed, skip logging
+      }
+    }
+
     res.json({
       message: 'Blog fetched successfully',
       data: {
-        ...result.rows[0],
+        ...blog,
         images: imagesResult.rows
       }
     });

@@ -5,6 +5,7 @@ import pool from '../config/database.js';
 import jwt from 'jsonwebtoken';
 import { authenticate, authorize } from '../middleware/auth.js';
 import { uploadAttachments } from '../middleware/upload.js';
+import UserActivity from '../models/UserActivity.js';
 
 const router = express.Router();
 
@@ -60,6 +61,18 @@ router.post('/', [
 
     // Increment enquiries count
     await pool.query('UPDATE properties SET enquiries_count = enquiries_count + 1 WHERE id = $1', [property_id]);
+
+    // Log activity if user is authenticated
+    if (userId) {
+      await UserActivity.log(
+        userId,
+        'enquiry_submitted',
+        'property_interaction',
+        { property_id, property_title: propertyData.title, enquiry_type },
+        req.ip,
+        req.get('user-agent')
+      ).catch(() => {}); // Don't fail the request if logging fails
+    }
 
     res.status(201).json({ message: 'Enquiry submitted successfully', enquiry: result.rows[0] });
   } catch (error) {

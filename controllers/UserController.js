@@ -1,13 +1,26 @@
 import User from '../models/User.js';
 import UserActivity from '../models/UserActivity.js';
-import pool from '../config/database.js';
-import fs from 'fs';
-import path from 'path';
-
-// For Netlify Functions, use temp directory instead of __dirname
-const uploadsDir = process.env.UPLOAD_DIR || '/tmp/uploads';
 
 class UserController {
+  static formatUserResponse(user) {
+    if (!user) {
+      return user;
+    }
+
+    const response = {
+      ...user,
+      profile_photo_data: undefined,
+      profile_photo_mime_type: undefined
+    };
+
+    if (user.profile_photo_data) {
+      const base64Photo = Buffer.from(user.profile_photo_data).toString('base64');
+      response.profile_photo = `data:${user.profile_photo_mime_type || 'image/jpeg'};base64,${base64Photo}`;
+    }
+
+    return response;
+  }
+
   // Get current logged-in user info
   static async getMe(req, res) {
     try {
@@ -18,8 +31,8 @@ class UserController {
         return res.status(404).json({ message: 'User not found' });
       }
 
-      // Don't send password hash
-      const { password_hash, ...userWithoutPassword } = user;
+      const formattedUser = UserController.formatUserResponse(user);
+      const { password_hash, ...userWithoutPassword } = formattedUser;
       res.json(userWithoutPassword);
     } catch (error) {
       console.error('Error fetching user:', error);
@@ -67,30 +80,19 @@ class UserController {
       }
 
       const userId = req.user.id;
-      const fileExt = path.extname(req.file.originalname);
-      const fileName = `profile_${userId}_${Date.now()}${fileExt}`;
-      const filePath = path.join(uploadsDir, fileName);
-
-      // Ensure uploads directory exists
-      if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true });
-      }
-
-      // Save file
-      fs.writeFileSync(filePath, req.file.buffer);
-
-      // Save path to database
-      const photoUrl = `/uploads/${fileName}`;
-      const updatedUser = await User.update(userId, {
-        profile_photo: photoUrl
-      });
+      const updatedUser = await User.updateProfilePhoto(
+        userId,
+        req.file.buffer,
+        req.file.mimetype
+      );
 
       // Log activity
       UserActivity.log(userId, 'profile_photo_uploaded', 'user_profile', {
-        photo_url: photoUrl
+        mime_type: req.file.mimetype
       }).catch(err => console.warn('Activity logging failed:', err.message));
 
-      const { password_hash, ...userWithoutPassword } = updatedUser;
+      const formattedUser = UserController.formatUserResponse(updatedUser);
+      const { password_hash, ...userWithoutPassword } = formattedUser;
       res.json({
         message: 'Profile photo uploaded successfully',
         user: userWithoutPassword
@@ -107,27 +109,20 @@ class UserController {
       const userId = req.user.id;
       const user = await User.findById(userId);
 
-      if (!user || !user.profile_photo) {
+      if (!user || (!user.profile_photo && !user.profile_photo_data)) {
         return res.status(404).json({ message: 'No profile photo found' });
       }
 
-      // Delete file from disk (use uploadsDir for temp storage)
-      const photoPath = path.join(uploadsDir, path.basename(user.profile_photo));
-      if (fs.existsSync(photoPath)) {
-        fs.unlinkSync(photoPath);
-      }
-
-      // Remove from database
-      const updatedUser = await User.update(userId, {
-        profile_photo: null
-      });
+      // Remove binary profile photo from database
+      const updatedUser = await User.updateProfilePhoto(userId, null, null);
 
       // Log activity
       UserActivity.log(userId, 'profile_photo_deleted', 'user_profile').catch(
         err => console.warn('Activity logging failed:', err.message)
       );
 
-      const { password_hash, ...userWithoutPassword } = updatedUser;
+      const formattedUser = UserController.formatUserResponse(updatedUser);
+      const { password_hash, ...userWithoutPassword } = formattedUser;
       res.json({
         message: 'Profile photo deleted successfully',
         user: userWithoutPassword
@@ -189,7 +184,7 @@ class UserController {
   static async getUserActivity(req, res) {
     try {
       const userId = req.user.id;
-      const { limit = 50, offset = 0 } = req.query;
+      const { limit = 50, offset = 0, daysBack = 30 } = req.query;
 
       const activities = await UserActivity.getUserActivity(
         userId,
@@ -198,9 +193,13 @@ class UserController {
       );
 
       const count = await UserActivity.getUserActivityCount(userId);
+      
+      // Also fetch activity stats for the dashboard
+      const stats = await UserActivity.getUserActivityStats(userId, parseInt(daysBack));
 
       res.json({
         activities,
+        stats,
         total: count,
         limit: parseInt(limit),
         offset: parseInt(offset)
@@ -293,9 +292,10 @@ class UserController {
       // Get user activities
       const activities = await UserActivity.getUserActivity(userId, 10, 0);
       const activityStats = await UserActivity.getUserActivityStats(userId, 30);
+      const formattedUser = UserController.formatUserResponse(user);
 
       res.json({
-        user,
+        user: formattedUser,
         activities,
         stats: activityStats
       });

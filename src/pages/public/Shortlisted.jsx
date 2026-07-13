@@ -1,11 +1,12 @@
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useShortlist } from '../../contexts/ShortlistContext';
 import { getImageUrl } from '../../utils/imageUrl';
 import { shareProperty } from '../../utils/whatsapp';
 import toast from 'react-hot-toast';
 
 function Shortlisted() {
+  const navigate = useNavigate();
   const { shortlistedProperties, toggleShortlist, isShortlisted, clearShortlist } = useShortlist();
 
   const groupedProperties = useMemo(() => {
@@ -52,7 +53,8 @@ function Shortlisted() {
     return (
       <div
         key={property.id}
-        className="card overflow-hidden hover:shadow-2xl transition-all duration-300"
+        className="card overflow-hidden hover:shadow-2xl transition-all duration-300 cursor-pointer"
+        onClick={() => navigate(`/properties/${property.id}`)}
       >
         {/* Image Section */}
         <div className="relative h-56 bg-midnight-800 overflow-hidden group">

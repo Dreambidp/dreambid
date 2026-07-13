@@ -37,6 +37,8 @@ CREATE TABLE users (
   full_name VARCHAR(255) NOT NULL,
   phone VARCHAR(20) UNIQUE CHECK (phone IS NULL OR (phone ~ '^\d{10}$')),
   profile_photo VARCHAR(500),
+  profile_photo_data BYTEA,
+  profile_photo_mime_type VARCHAR(50) DEFAULT 'image/jpeg',
   role VARCHAR(50) DEFAULT 'user' CHECK (role IN ('admin', 'staff', 'user')),
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

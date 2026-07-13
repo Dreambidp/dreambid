@@ -44,7 +44,7 @@ function ProfileDropdown({ user }) {
       {/* Profile Avatar Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-gray-300 hover:border-blue-500 transition focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        className="flex items-center justify-center w-10 h-10 rounded-full border-2 border-midnight-700 bg-midnight-900 hover:border-gold transition focus:outline-none focus:ring-2 focus:ring-gold focus:ring-offset-2 focus:ring-offset-midnight-950"
         title={user?.full_name}
       >
         {user?.profile_photo ? (
@@ -54,7 +54,7 @@ function ProfileDropdown({ user }) {
             className="w-full h-full rounded-full object-cover"
           />
         ) : (
-          <span className="text-sm font-semibold text-gray-700 bg-gray-100 w-full h-full flex items-center justify-center rounded-full">
+          <span className="text-sm font-semibold text-white bg-midnight-700 w-full h-full flex items-center justify-center rounded-full">
             {getInitials(user?.full_name || 'U')}
           </span>
         )}
@@ -62,18 +62,17 @@ function ProfileDropdown({ user }) {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50 border border-gray-200">
+        <div className="absolute right-0 mt-2 w-48 bg-midnight-900 rounded-lg shadow-dark-elevation py-2 z-50 border border-midnight-700">
           {/* User Info */}
-          <div className="px-4 py-3 border-b border-gray-200">
-            <p className="text-sm font-semibold text-gray-900">{user?.full_name}</p>
-            <p className="text-xs text-gray-500 truncate">{user?.email}</p>
+          <div className="px-4 py-3 border-b border-midnight-700">
+            <p className="text-sm font-semibold text-white">{user?.full_name}</p>
           </div>
 
           {/* Menu Items */}
           <Link
             to={getDashboardLink()}
             onClick={() => setIsOpen(false)}
-            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
+            className="flex items-center space-x-2 px-4 py-2 text-text-primary hover:bg-midnight-800 transition"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -89,7 +88,7 @@ function ProfileDropdown({ user }) {
           <Link
             to="/profile"
             onClick={() => setIsOpen(false)}
-            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
+            className="flex items-center space-x-2 px-4 py-2 text-text-primary hover:bg-midnight-800 transition"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -105,7 +104,7 @@ function ProfileDropdown({ user }) {
           <Link
             to="/settings"
             onClick={() => setIsOpen(false)}
-            className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
+            className="flex items-center space-x-2 px-4 py-2 text-text-primary hover:bg-midnight-800 transition"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -125,10 +124,10 @@ function ProfileDropdown({ user }) {
           </Link>
 
           {/* Logout */}
-          <div className="border-t border-gray-200 pt-2">
+          <div className="border-t border-midnight-700 pt-2">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 transition text-sm"
+              className="w-full flex items-center space-x-2 px-4 py-2 text-red-400 hover:bg-red-500/10 transition text-sm"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path

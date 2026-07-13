@@ -23,7 +23,9 @@ class User {
   // Find user by id
   static async findById(id) {
     const result = await pool.query(
-      'SELECT id, email, full_name, phone, profile_photo, role, is_active, created_at FROM users WHERE id = $1',
+      `SELECT id, email, full_name, phone, profile_photo, profile_photo_data, profile_photo_mime_type,
+              role, is_active, created_at
+         FROM users WHERE id = $1`,
       [id]
     );
     return result.rows[0];
@@ -32,7 +34,9 @@ class User {
   // Find user by id including password hash (for password verification only)
   static async findByIdWithPassword(id) {
     const result = await pool.query(
-      'SELECT id, email, full_name, phone, profile_photo, role, is_active, password_hash, created_at FROM users WHERE id = $1',
+      `SELECT id, email, full_name, phone, profile_photo, profile_photo_data, profile_photo_mime_type,
+              role, is_active, password_hash, created_at
+         FROM users WHERE id = $1`,
       [id]
     );
     return result.rows[0];
@@ -82,6 +86,22 @@ class User {
        WHERE id = $1
        RETURNING id, email, full_name, phone, profile_photo, role, is_active, updated_at`,
       [id, full_name, phone, role, is_active, profile_photo]
+    );
+
+    return result.rows[0];
+  }
+
+  // Update profile photo binary data and mime type
+  static async updateProfilePhoto(id, photoData, mimeType) {
+    const result = await pool.query(
+      `UPDATE users
+       SET profile_photo_data = $2,
+           profile_photo_mime_type = $3,
+           profile_photo = NULL,
+           updated_at = NOW()
+       WHERE id = $1
+       RETURNING id, email, full_name, phone, profile_photo, profile_photo_data, profile_photo_mime_type, role, is_active, updated_at`,
+      [id, photoData, mimeType]
     );
 
     return result.rows[0];

@@ -8,7 +8,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({});
+  const [stats, setStats] = useState([]);
 
   useEffect(() => {
     if (!user) {

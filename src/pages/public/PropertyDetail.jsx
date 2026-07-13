@@ -517,6 +517,12 @@ function PropertyDetail() {
                       <span className="text-sm font-medium text-text-primary break-words leading-relaxed">{property.state}</span>
                     </div>
                   )}
+                  {property.zip_code && (
+                    <div>
+                      <span className="text-xs text-text-secondary block">Pin Code</span>
+                      <span className="text-sm font-medium text-text-primary break-words leading-relaxed">{property.zip_code}</span>
+                    </div>
+                  )}
                   {property.address && (
                     <div className="col-span-2">
                       <span className="text-xs text-text-secondary block">Address</span>

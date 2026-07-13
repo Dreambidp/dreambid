@@ -197,14 +197,14 @@ function Settings() {
             <div className="flex justify-end space-x-3 pt-4">
               <a
                 href="/dashboard"
-                className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 border border-gold text-gold rounded-lg hover:bg-gold/10 transition"
               >
                 Cancel
               </a>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400"
+                className="px-4 py-2 bg-gold text-midnight-950 rounded-lg hover:bg-gold-hover disabled:bg-text-muted disabled:text-midnight-950"
               >
                 {loading ? 'Updating...' : 'Change Password'}
               </button>
@@ -213,12 +213,12 @@ function Settings() {
         </div>
 
         {/* Account Info Section */}
-        <div className="bg-white rounded-lg shadow p-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Account Information</h2>
+        <div className="bg-midnight-900 rounded-lg shadow-dark-elevation border border-midnight-700 p-8">
+          <h2 className="text-lg font-semibold text-text-primary mb-4">Account Information</h2>
           <div className="space-y-4">
             <div>
-              <p className="text-sm text-gray-500">Member Since</p>
-              <p className="text-gray-900 font-medium">
+              <p className="text-sm text-text-muted">Member Since</p>
+              <p className="text-text-primary font-medium">
                 {user?.created_at && !isNaN(new Date(user.created_at).getTime())
                   ? new Date(user.created_at).toLocaleDateString('en-US', {
                       year: 'numeric',

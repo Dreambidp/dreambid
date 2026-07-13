@@ -28,7 +28,7 @@ function AdminNavbar() {
           {/* Logo and Brand */}
           <div className="flex items-center space-x-3 sm:space-x-6">
             <Link to="/admin/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <img src="/logo.png" alt="DreamBid" className="h-12 sm:h-14 md:h-16 w-auto object-contain" />
+              <img src="/logo.png" alt="DreamBid" className="h-6 sm:h-7 md:h-8 w-auto object-contain" />
             </Link>
             
             {/* Desktop Navigation Links */}

@@ -2,6 +2,7 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import pool from '../config/database.js';
 import { authenticate } from '../middleware/auth.js';
+import UserActivity from '../models/UserActivity.js';
 
 const router = express.Router();
 
@@ -58,6 +59,24 @@ router.post('/', async (req, res) => {
       await pool.query('UPDATE properties SET shares_count = shares_count + 1 WHERE id = $1', [property_id]);
     } else if (interest_type === 'contact') {
       await pool.query('UPDATE properties SET enquiries_count = enquiries_count + 1 WHERE id = $1', [property_id]);
+    }
+
+    // Log activity if user is authenticated
+    if (userId) {
+      const actionMap = {
+        'view': 'property_viewed',
+        'share': 'property_shared',
+        'contact': 'property_contacted',
+        'save': 'property_saved'
+      };
+      await UserActivity.log(
+        userId,
+        actionMap[interest_type],
+        'property_interaction',
+        { property_id, interest_type },
+        req.ip || req.connection.remoteAddress,
+        req.get('user-agent')
+      ).catch(() => {}); // Don't fail the request if logging fails
     }
 
     res.json({ message: 'Interest tracked successfully' });
