@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from 'react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { CalendarIcon, UserIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import api from '../../services/api';
 
@@ -88,9 +88,10 @@ function Blogs() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredBlogs.map(blog => (
-              <article
+              <Link
                 key={blog.id}
-                className="bg-gradient-to-br from-midnight-800 to-midnight-750 rounded-lg overflow-hidden border border-midnight-700 hover:border-gold hover:shadow-lg hover:shadow-gold/10 transition-all duration-300 group"
+                to={`/blogs/${blog.id}`}
+                className="bg-gradient-to-br from-midnight-800 to-midnight-750 rounded-lg overflow-hidden border border-midnight-700 hover:border-gold hover:shadow-lg hover:shadow-gold/10 transition-all duration-300 group cursor-pointer flex flex-col h-full"
               >
                 {/* Image */}
                 <div className="h-48 overflow-hidden bg-midnight-700 flex items-center justify-center">
@@ -110,7 +111,7 @@ function Blogs() {
                 </div>
 
                 {/* Content */}
-                <div className="p-6">
+                <div className="p-6 flex-1 flex flex-col">
                   {/* Category Badge */}
                   <div className="mb-3">
                     <span className="inline-block px-3 py-1 bg-gold/20 text-gold text-xs font-semibold rounded-full capitalize">
@@ -149,17 +150,14 @@ function Blogs() {
                   </div>
 
                   {/* Read More Link */}
-                  <div className="flex items-center justify-end">
-                    <Link
-                      to={`/blogs/${blog.id}`}
-                      className="inline-flex items-center gap-2 text-gold hover:text-gold-hover font-medium text-sm transition-colors group/link"
-                    >
+                  <div className="flex items-center justify-end mt-auto">
+                    <span className="inline-flex items-center gap-2 text-gold font-medium text-sm transition-colors group/link">
                       Read More
                       <ArrowRightIcon className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
-                    </Link>
+                    </span>
                   </div>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )}
