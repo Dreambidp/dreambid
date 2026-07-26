@@ -29,9 +29,12 @@ function Blogs() {
     }))
   ];
 
-  const filteredBlogs = selectedCategory === 'all' 
-    ? blogs
-    : blogs.filter(blog => blog.category === selectedCategory);
+  // Exclude archived blogs from public listing
+  const visibleBlogs = blogs.filter(blog => blog.status !== 'archived');
+
+  const filteredBlogs = selectedCategory === 'all'
+    ? visibleBlogs
+    : visibleBlogs.filter(blog => blog.category === selectedCategory);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-midnight-950 to-midnight-900 pt-8 pb-24 md:pb-8">
