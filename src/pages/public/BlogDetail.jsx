@@ -161,66 +161,135 @@ function BlogDetail() {
         </div>
       )}
 
-      {/* Article Content */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        {/* Category and Meta */}
-        <div className="mb-6">
-          <div className="inline-block px-4 py-1.5 bg-gold/20 text-gold text-xs font-bold rounded-full uppercase tracking-wide mb-6">
-            {blog.category}
+      {/* Article Content - revamped layout */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+        {/* Archived notice */}
+        {blog.status === 'archived' && (
+          <div className="mb-6 p-4 rounded-lg bg-red-900/30 border border-red-800 text-red-200">
+            This article has been archived and is no longer actively maintained.
           </div>
-          
-          {/* Title */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-            {blog.title}
-          </h1>
+        )}
 
-          {/* Author and Meta Info */}
-          <div className="flex flex-wrap items-center gap-8 pb-6 border-b border-midnight-700">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold to-red-600 flex items-center justify-center text-midnight-950 font-bold text-lg">
-                {blog.author.charAt(0)}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          {/* Main column */}
+          <div className="lg:col-span-2">
+            <div className="mb-4">
+              <div className="inline-block px-4 py-1.5 bg-gold/20 text-gold text-xs font-bold rounded-full uppercase tracking-wide mb-4">
+                {blog.category}
               </div>
-              <div>
-                <p className="text-white font-semibold">{blog.author}</p>
-                <p className="text-text-secondary text-sm">Author</p>
+
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
+                {blog.title}
+              </h1>
+
+              <p className="text-text-secondary text-sm mb-4 italic">{blog.excerpt}</p>
+            </div>
+
+            <div className="prose prose-invert max-w-none mb-8">
+              {blog.content ? (
+                <div
+                  className="text-text-secondary leading-relaxed whitespace-pre-wrap text-base"
+                  dangerouslySetInnerHTML={{ __html: blog.content }}
+                />
+              ) : (
+                <p className="text-text-secondary leading-relaxed">{blog.excerpt}</p>
+              )}
+            </div>
+
+            {/* Image gallery (larger) */}
+            {allImages.length > 0 && (
+              <div className="space-y-4 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {allImages.map((img, idx) => (
+                    <div key={idx} className="rounded-lg overflow-hidden border border-midnight-700">
+                      <img src={getImageUrl(img.image_data || img.image_url || '')} alt={`${blog.title} ${idx+1}`} className="w-full h-64 object-cover" />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
-            <div className="flex items-center gap-2 text-text-secondary">
-              <CalendarIcon className="w-5 h-5 text-gold" />
-              <span className="text-sm">
-                {new Date(blog.created_at).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 text-text-secondary">
-              <svg className="w-5 h-5 text-gold" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00-.293.707l-.707.707a1 1 0 101.414 1.414l1-1A1 1 0 0011 9.414V6z"></path>
-              </svg>
-              <span className="text-sm font-medium text-gold">{blog.readTime}</span>
-            </div>
+            {/* Related Articles (keep as before) */}
+            {relatedBlogs.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">Related Articles</h2>
+                <p className="text-text-secondary mb-6">Explore more insights on this topic</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {relatedBlogs.map(relatedBlog => (
+                    <Link
+                      key={relatedBlog.id}
+                      to={`/blogs/${relatedBlog.id}`}
+                      className="group bg-gradient-to-br from-midnight-800 to-midnight-750 rounded-xl overflow-hidden border border-midnight-700 hover:border-gold hover:shadow-2xl hover:shadow-gold/20 transition-all duration-300"
+                    >
+                      <div className="h-44 overflow-hidden bg-midnight-700 relative">
+                        {relatedBlog.image ? (
+                          <img
+                            src={relatedBlog.image}
+                            alt={relatedBlog.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
+                            <svg className="w-16 h-16 text-gold/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C6.5 6.253 2 10.998 2 17s4.5 10.747 10 10.747c5.523 0 10-4.649 10-10.747S17.523 6.253 12 6.253z" />
+                            </svg>
+                          </div>
+                        )}
+                        <div className="absolute top-3 left-3">
+                          <span className="inline-block px-3 py-1 bg-gold/20 text-gold text-xs font-bold rounded-full capitalize">
+                            {relatedBlog.category}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <h3 className="text-lg font-bold text-white mb-2 line-clamp-2 group-hover:text-gold transition-colors">{relatedBlog.title}</h3>
+                        <p className="text-text-secondary text-sm line-clamp-2">{relatedBlog.excerpt}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        </div>
 
-        {/* Article Excerpt */}
-        <p className="text-lg text-text-secondary mb-12 italic leading-relaxed">
-          {blog.excerpt}
-        </p>
+          {/* Sidebar */}
+          <aside className="lg:col-span-1">
+            <div className="bg-midnight-900 border border-midnight-700 rounded-lg p-6 sticky top-24">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-gold to-red-600 flex items-center justify-center text-midnight-950 font-bold text-lg">
+                  {blog.author ? blog.author.charAt(0) : 'A'}
+                </div>
+                <div>
+                  <div className="text-sm text-text-secondary">Author</div>
+                  <div className="text-white font-semibold">{blog.author}</div>
+                </div>
+              </div>
 
-        {/* Article Content */}
-        <div className="prose prose-invert max-w-none mb-16">
-          {blog.content ? (
-            <div
-              className="text-text-secondary leading-relaxed whitespace-pre-wrap text-base"
-              dangerouslySetInnerHTML={{ __html: blog.content }}
-            />
-          ) : (
-            <p className="text-text-secondary leading-relaxed">{blog.excerpt}</p>
-          )}
+              <div className="mb-4">
+                <div className="text-sm text-text-secondary mb-2">Category</div>
+                <div className="inline-block px-3 py-1 bg-gold/10 text-gold text-xs font-semibold rounded-full">{blog.category}</div>
+              </div>
+
+              <div className="mb-4">
+                <div className="text-sm text-text-secondary mb-2">Status</div>
+                <div className="inline-block px-3 py-1 text-xs font-semibold rounded-full" style={{backgroundColor: blog.status === 'archived' ? 'rgba(128, 0, 0, 0.15)' : undefined}}>
+                  <span className={`px-2 py-1 text-sm font-medium rounded-full ${blog.status === 'archived' ? 'bg-red-800/20 text-red-200 border border-red-700' : 'bg-green-100 text-green-800'}`}>
+                    {blog.status}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mb-4 text-text-secondary text-sm">
+                <div className="flex items-center gap-2"><CalendarIcon className="w-4 h-4 text-gold" />{new Date(blog.created_at).toLocaleDateString()}</div>
+                <div className="flex items-center gap-2 mt-2"><svg className="w-4 h-4 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00-.293.707l-.707.707a1 1 0 101.414 1.414l1-1A1 1 0 0011 9.414V6z"></path></svg>{blog.readTime}</div>
+              </div>
+
+              <div className="mt-4">
+                <button onClick={() => window.print()} className="w-full mb-3 px-4 py-2 bg-midnight-800 text-gold border border-midnight-700 rounded-lg">Print</button>
+                <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="w-full px-4 py-2 bg-gold text-midnight-950 rounded-lg">Back to Top</button>
+              </div>
+            </div>
+          </aside>
         </div>
       </div>
 
