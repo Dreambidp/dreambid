@@ -95,18 +95,21 @@ function HashScrollHandler() {
     if (!location.hash) return;
 
     const id = location.hash.replace('#', '');
-    // Delay slightly to allow route components to mount
-    const t = setTimeout(() => {
+    const tryScroll = (attempt = 0) => {
       const el = document.getElementById(id);
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+
+      if (attempt < 8) {
+        setTimeout(() => tryScroll(attempt + 1), 100);
       } else {
-        // fallback: try scrolling to top of page
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-    }, 50);
+    };
 
-    return () => clearTimeout(t);
+    tryScroll();
   }, [location.pathname, location.hash]);
 
   return null;

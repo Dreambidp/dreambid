@@ -1,11 +1,14 @@
 import { useQuery } from 'react-query';
 import { userRegistrationsAPI } from '../../services/admin-api';
 import toast from 'react-hot-toast';
-import { CalendarIcon, UserIcon, MapPinIcon, CreditCardIcon } from '@heroicons/react/24/outline';
+import { UserIcon, MapPinIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
+import { closeRegistrationDetails, getActiveRegistration, openRegistrationDetails } from '../../utils/registrationsSelection';
 
 function UserRegistrations() {
   const [selectedRegistration, setSelectedRegistration] = useState(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const activeRegistration = getActiveRegistration(selectedRegistration, isDetailsOpen);
 
   const { data: registrationsData, isLoading, error } = useQuery(
     'user-registrations',
@@ -21,6 +24,14 @@ function UserRegistrations() {
   );
 
   const registrations = registrationsData?.registrations || [];
+
+  const handleRegistrationSelect = (registration) => {
+    openRegistrationDetails(registration, setSelectedRegistration, setIsDetailsOpen);
+  };
+
+  const handleDetailsClose = () => {
+    closeRegistrationDetails(setSelectedRegistration, setIsDetailsOpen);
+  };
 
   if (isLoading) {
     return (
@@ -54,9 +65,17 @@ function UserRegistrations() {
               {registrations.map((reg) => (
                 <div
                   key={reg.id}
-                  onClick={() => setSelectedRegistration(reg)}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => handleRegistrationSelect(reg)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      handleRegistrationSelect(reg);
+                    }
+                  }}
                   className={`bg-midnight-800 border border-midnight-700 rounded-lg p-6 cursor-pointer transition-all duration-200 hover:border-gold ${
-                    selectedRegistration?.id === reg.id ? 'border-gold bg-midnight-750' : ''
+                    activeRegistration?.id === reg.id ? 'border-gold bg-midnight-750' : ''
                   }`}
                 >
                   <div className="flex items-start justify-between mb-4">
@@ -91,8 +110,8 @@ function UserRegistrations() {
           </div>
 
           {/* Details Panel */}
-          {selectedRegistration && (
-            <div className="lg:col-span-1">
+          {activeRegistration && (
+            <div className="hidden lg:block lg:col-span-1">
               <div className="bg-midnight-800 border border-midnight-700 rounded-lg p-6 sticky top-20">
                 <h2 className="text-xl font-semibold text-white mb-6">Registration Details</h2>
 
@@ -100,16 +119,16 @@ function UserRegistrations() {
                 <div className="space-y-4 mb-6">
                   <div>
                     <p className="text-text-muted text-sm mb-1">Name</p>
-                    <p className="text-white font-medium">{selectedRegistration.name}</p>
+                    <p className="text-white font-medium">{activeRegistration.name}</p>
                   </div>
                   <div>
                     <p className="text-text-muted text-sm mb-1">Contact Number</p>
-                    <p className="text-white font-medium">{selectedRegistration.contact_number}</p>
+                    <p className="text-white font-medium">{activeRegistration.contact_number}</p>
                   </div>
                   <div>
                     <p className="text-text-muted text-sm mb-1">Registered On</p>
                     <p className="text-white font-medium">
-                      {new Date(selectedRegistration.created_at).toLocaleDateString('en-US', {
+                      {new Date(activeRegistration.created_at).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
@@ -121,12 +140,91 @@ function UserRegistrations() {
                 </div>
 
                 {/* Requirements */}
-                {selectedRegistration.requirements && Array.isArray(selectedRegistration.requirements) && (
-                  <>
+                {activeRegistration.requirements && Array.isArray(activeRegistration.requirements) && (
+                  <div className="border-t border-midnight-700 pt-6">
+                    <h3 className="text-lg font-semibold text-white mb-4">Requirements</h3>
+                    <div className="space-y-4">
+                      {activeRegistration.requirements.map((req, idx) => (
+                        <div key={idx} className="bg-midnight-900 rounded-lg p-4 border border-midnight-700">
+                          <p className="text-gold text-sm font-semibold mb-3">Requirement {idx + 1}</p>
+
+                          <div className="space-y-2 text-sm">
+                            <div>
+                              <p className="text-text-muted mb-1">City/Locality</p>
+                              <p className="text-text-primary">{req.preferredCity || 'N/A'}</p>
+                            </div>
+
+                            <div>
+                              <p className="text-text-muted mb-1">Budget</p>
+                              <p className="text-text-primary">{req.budget || 'N/A'}</p>
+                            </div>
+
+                            <div>
+                              <p className="text-text-muted mb-1">Property Type</p>
+                              <p className="text-text-primary">
+                                {Array.isArray(req.propertyType) && req.propertyType.length > 0
+                                  ? req.propertyType.join(', ')
+                                  : 'N/A'}
+                              </p>
+                            </div>
+
+                            <div>
+                              <p className="text-text-muted mb-1">Requirement Type</p>
+                              <p className="text-text-primary capitalize">{req.requirementType || 'N/A'}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Mobile details modal */}
+          {activeRegistration && (
+            <div className="lg:hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+              <div className="w-full max-w-xl bg-midnight-800 border border-midnight-700 rounded-lg shadow-xl overflow-y-auto max-h-[90vh]">
+                <div className="flex items-center justify-between p-4 border-b border-midnight-700">
+                  <h2 className="text-xl font-semibold text-white">Registration Details</h2>
+                  <button
+                    type="button"
+                    onClick={handleDetailsClose}
+                    className="text-text-secondary hover:text-white"
+                  >
+                    Close
+                  </button>
+                </div>
+                <div className="p-6 space-y-6">
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-text-muted text-sm mb-1">Name</p>
+                      <p className="text-white font-medium">{activeRegistration.name}</p>
+                    </div>
+                    <div>
+                      <p className="text-text-muted text-sm mb-1">Contact Number</p>
+                      <p className="text-white font-medium">{activeRegistration.contact_number}</p>
+                    </div>
+                    <div>
+                      <p className="text-text-muted text-sm mb-1">Registered On</p>
+                      <p className="text-white font-medium">
+                        {new Date(activeRegistration.created_at).toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {activeRegistration.requirements && Array.isArray(activeRegistration.requirements) && (
                     <div className="border-t border-midnight-700 pt-6">
                       <h3 className="text-lg font-semibold text-white mb-4">Requirements</h3>
                       <div className="space-y-4">
-                        {selectedRegistration.requirements.map((req, idx) => (
+                        {activeRegistration.requirements.map((req, idx) => (
                           <div key={idx} className="bg-midnight-900 rounded-lg p-4 border border-midnight-700">
                             <p className="text-gold text-sm font-semibold mb-3">Requirement {idx + 1}</p>
 
@@ -159,8 +257,8 @@ function UserRegistrations() {
                         ))}
                       </div>
                     </div>
-                  </>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           )}

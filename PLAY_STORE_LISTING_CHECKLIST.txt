@@ -1,0 +1,100 @@
+Play Store Listing Checklist for DreamBid
+
+1) Developer account
+- Google Play Developer account (one-time fee)
+- Developer name and contact email
+
+2) App metadata
+- App title (short)
+- Short description (80 characters recommended)
+- Full description (up to 4,000 characters)
+- App category (e.g., "Finance", "Business") and type (App/Game)
+- Tags (up to 5) and keywords for discovery
+
+3) Graphics & assets
+- High-res app icon: 512 x 512 PNG (32-bit) - required
+- Feature graphic: 1024 x 500 PNG/JPG - required for store listing
+- Promo video URL (YouTube) - optional
+- Screenshots:
+  - Phone screenshots: 3-8 images recommended (min width 320px; use 1080 x 1920 or higher for quality)
+  - 16:9 videos or landscape screenshots if needed
+  - Tablet screenshots (if tablet support)
+  - Optional: 7-inch and 10-inch tablet screenshots
+- Promo images for special placements (if used)
+
+4) App binary
+- Produce Android App Bundle: `app-release.aab`
+  - Command: `cd android && ./gradlew bundleRelease`
+  - Output: `android/app/build/outputs/bundle/release/app-release.aab`
+- Ensure `versionCode` and `versionName` updated
+- Target SDK: set to current Android target (check Play Console minimum/target requirements)
+
+5) App signing & keystore
+- Decide: Play App Signing (recommended) OR manage your own release key
+- If self-signing, generate release keystore:
+  - `keytool -genkey -v -keystore release-keystore.jks -alias release -keyalg RSA -keysize 2048 -validity 10000`
+- Keep keystore and passwords secure (backup offline)
+- If using Play App Signing, generate an upload key and keep it safe
+
+6) Permissions & privacy
+- List all runtime permissions used and justifications (location, storage, camera, etc.)
+- Privacy Policy URL (publicly accessible) — required if personal data collected
+- Data safety questionnaire answers for Play Console
+- GDPR / CCPA considerations and consent flows if applicable
+
+7) Content & policy compliance
+- Content Rating questionnaire responses
+- Ads declaration (if showing ads)
+- In-app purchases / subscriptions configured in Play Console (if any)
+- Remove debugging or test APIs and hard-coded secrets
+
+8) Store listing details
+- Contact details: email (required), phone (optional), website (optional)
+- Privacy policy URL
+- Launch icon and feature graphic uploaded
+- Screenshots uploaded for each supported device category
+- Localized titles/descriptions (if supporting multiple languages)
+- Promotional text / short description optimized for SEO
+
+9) Testing & QA
+- Internal test track: upload AAB, add testers (emails), verify installs and flows
+- Open/closed testing tracks as needed
+- Validate in-app billing flows (if used)
+- Verify crash reporting & analytics (e.g., Firebase Crashlytics)
+
+10) Release process
+- Prepare release notes for testers and production
+- Upload AAB to Internal -> Closed -> Production tracks as rollout strategy
+- Start with staged rollout (e.g., 10%) then increase
+- Monitor Play Console for crashes, ANRs, user feedback
+
+11) Legal & export
+- Confirm export compliance (cryptography usage)
+- Confirm country availability and age ratings
+- Terms & Conditions and Privacy Policy links
+
+12) Post-publish
+- Monitor vitals, ratings, and crash reports
+- Respond to reviews and support queries
+- Prepare updates with proper semantic versioning
+
+Helpful commands summary
+- Build web and sync (Capacitor):
+  npm run build
+  npx cap sync android
+- Build app bundle (release):
+  cd android
+  ./gradlew bundleRelease
+- Generate keystore:
+  keytool -genkey -v -keystore release-keystore.jks -alias release -keyalg RSA -keysize 2048 -validity 10000
+- Install debug APK (for QA):
+  ./gradlew assembleDebug
+  adb install -r app/build/outputs/apk/debug/app-debug.apk
+
+Notes & recommendations
+- Prefer App Bundle (`.aab`) and Play App Signing for easier key management.
+- Keep a secure backup of your keystore and upload-key.
+- Test thoroughly via internal track before production rollout.
+- Localize listing and screenshots for major target markets to improve installs.
+
+End of checklist

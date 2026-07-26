@@ -29,6 +29,12 @@ function Navbar() {
     navigate('/login');
   };
 
+  const handleHowItWorksClick = () => {
+    closeMenu();
+    setMenuOpen(false);
+    navigate('/#buying-process');
+  };
+
   return (
     <nav className="bg-gradient-to-b from-midnight-950 to-midnight-900 backdrop-blur-md shadow-dark-elevation sticky top-0 z-50 border-b border-midnight-700 pt-safe">
       <div className="max-w-7xl mx-auto px-4 md:px-16">
@@ -58,15 +64,13 @@ function Navbar() {
                 <Link to="/register" className="block px-4 py-3 text-text-nav hover:text-gold hover:bg-midnight-700 transition-colors">
                   Get Started
                 </Link>
-                <a
-                  href="/#buying-process"
-                  onClick={() => {
-                    closeMenu();
-                  }}
-                  className="block px-4 py-3 text-text-nav hover:text-gold hover:bg-midnight-700 transition-colors"
+                <button
+                  type="button"
+                  onClick={handleHowItWorksClick}
+                  className="block w-full text-left px-4 py-3 text-text-nav hover:text-gold hover:bg-midnight-700 transition-colors"
                 >
                   How it Works
-                </a>
+                </button>
                 <Link to="/contact" className="block px-4 py-3 text-text-nav hover:text-gold hover:bg-midnight-700 transition-colors">
                   Contact Us
                 </Link>
@@ -179,15 +183,13 @@ function Navbar() {
               >
                 Get Started
               </Link>
-              <a
-                href="/#buying-process"
-                onClick={() => {
-                  setMenuOpen(false);
-                }}
-                className="text-text-nav hover:text-gold hover:bg-midnight-800 block px-4 py-3 rounded-btn text-base font-medium transition-colors"
+              <button
+                type="button"
+                onClick={handleHowItWorksClick}
+                className="text-text-nav hover:text-gold hover:bg-midnight-800 block w-full text-left px-4 py-3 rounded-btn text-base font-medium transition-colors"
               >
                 How it Works
-              </a>
+              </button>
               <Link
                 to="/contact"
                 onClick={() => setMenuOpen(false)}
