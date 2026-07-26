@@ -14,17 +14,16 @@ const formatIndianPhone = (phone) => {
 };
 
 export const shareProperty = (property) => {
-  const title = property.title || 'Property';
-  const location = [property.city, property.state].filter(Boolean).join(', ');
-  const fullTitle = `${title} in ${location}`;
-  const reservePrice = property.reserve_price ? `₹${parseFloat(property.reserve_price).toLocaleString('en-IN')}` : 'N/A';
-  const auctionDate = property.auction_date
+  const title = property?.title || 'Property';
+  const location = [property?.city, property?.state].filter(Boolean).join(', ') || 'N/A';
+  const reservePrice = property?.reserve_price ? `₹${parseFloat(property.reserve_price).toLocaleString('en-IN')}` : 'N/A';
+  const auctionDate = property?.auction_date
     ? new Date(property.auction_date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
     : 'N/A';
-  const propertyUrl = `${window.location.origin}/properties/${property.id}`;
+  const propertyUrl = `${window.location.origin}/properties/${property?.id || ''}`;
   const supportPhone = formatIndianPhone(SUPPORT_PHONE);
 
-  const message = `${fullTitle}\nReserve Price: ${reservePrice}\nApplication Deadline: ${auctionDate}\n\nProperty Link: ${propertyUrl}\n\nFor more details, contact us at: ${supportPhone}`;
+  const message = `Property Title: ${title}\nLocation: ${location}\nReserve Price: ${reservePrice}\nAuction Date: ${auctionDate}\n\nProperty Link: ${propertyUrl}\n\nFor more details, contact us at: ${supportPhone}`;
   // Open WhatsApp Web/App in share mode - lets user choose recipient from contacts
   const url = `https://wa.me/?text=${encodeURIComponent(message)}`;
   window.open(url, '_blank');
