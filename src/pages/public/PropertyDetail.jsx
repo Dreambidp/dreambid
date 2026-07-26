@@ -1084,7 +1084,7 @@ function PropertyDetail() {
                 <p className="text-xs text-gray-400 mb-3">Or contact us directly:</p>
                 <button
                   type="button"
-                  onClick={() => contactViaWhatsApp(property, null, '+917428264402')}
+                  onClick={() => contactViaWhatsApp(property)}
                   className="w-full px-4 py-2.5 bg-green-500 text-white rounded-xl hover:bg-green-600 transition flex items-center justify-center gap-2 text-sm font-medium"
                 >
                   <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
@@ -1114,7 +1114,7 @@ function PropertyDetail() {
 
                 <button
                   type="button"
-                  onClick={() => contactViaWhatsApp(property, null, '+917428264402')}
+                  onClick={() => contactViaWhatsApp(property)}
                   className="w-full px-4 py-3 bg-green-500 hover:bg-green-600 text-white rounded-xl transition font-semibold text-sm flex items-center justify-center gap-2"
                 >
                   <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
@@ -1171,7 +1171,7 @@ function PropertyDetail() {
           </button>
           <button
             type="button"
-            onClick={() => contactViaWhatsApp(property, null, '+917428264402')}
+            onClick={() => contactViaWhatsApp(property)}
             className="flex-1 px-4 py-3 bg-midnight-700 text-gold border border-gold rounded-lg hover:bg-midnight-600 transition font-semibold text-sm flex items-center justify-center gap-2"
           >
             <img src="/whatsapp.svg" alt="WhatsApp" className="w-5 h-5" />
