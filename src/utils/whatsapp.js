@@ -29,17 +29,18 @@ export const shareProperty = (property) => {
   window.open(url, '_blank');
 };
 
-export const contactViaWhatsApp = (property, enquiry = null) => {
+export const contactViaWhatsApp = (property, enquiry = null, phoneNumber = null) => {
   let message = `Hello, I'm interested in this property:\n\nProperty ID: ${property.id}\nTitle: ${property.title}\nLocation: ${property.city}, ${property.state}\nReserve Price: ₹${parseFloat(property.reserve_price).toLocaleString('en-IN')}`;
-  
+
   if (enquiry) {
     message += `\n\nMy Details:\nName: ${enquiry.name}\nEmail: ${enquiry.email}\nPhone: ${enquiry.phone}`;
     if (enquiry.message) {
       message += `\nMessage: ${enquiry.message}`;
     }
   }
-  
-  const url = `${WHATSAPP_API_URL}/?phone=${WHATSAPP_NUMBER.replace(/\D/g, '')}&text=${encodeURIComponent(message)}&type=phone_number&app_absent=0`;
+
+  const phone = (phoneNumber || WHATSAPP_NUMBER).replace(/\D/g, '');
+  const url = `${WHATSAPP_API_URL}/?phone=${phone}&text=${encodeURIComponent(message)}&type=phone_number&app_absent=0`;
   window.open(url, '_blank');
 };
 
