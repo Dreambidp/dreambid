@@ -9,6 +9,8 @@ function BlogDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedImageModal, setSelectedImageModal] = useState(null);
+  const [galleryImageIndex, setGalleryImageIndex] = useState(0);
 
   // Fetch single blog
   const { data: blogData, isLoading, error } = useQuery(
@@ -85,6 +87,79 @@ function BlogDetail() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-midnight-950 to-midnight-900">
+      {/* Image Modal - Gallery Viewer */}
+      {selectedImageModal && selectedImageModal.length > 0 && (() => {
+        const currentImage = selectedImageModal[galleryImageIndex];
+
+        return (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+            style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1rem)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 1rem)' }}
+            onClick={() => setSelectedImageModal(null)}
+          >
+            <button
+              onClick={() => setSelectedImageModal(null)}
+              className="absolute right-4 text-white hover:text-red-500 transition-colors z-50 bg-red-600 hover:bg-red-700 rounded-full p-2 shadow-lg"
+              style={{ top: 'calc(env(safe-area-inset-top, 0px) + 1rem)' }}
+              aria-label="Close"
+              title="Close (ESC)"
+            >
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            {selectedImageModal.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setGalleryImageIndex((prev) => (prev > 0 ? prev - 1 : selectedImageModal.length - 1));
+                  }}
+                  className="absolute left-4 text-white hover:text-red-500 transition-colors z-10 bg-black bg-opacity-50 rounded-full p-2 hover:bg-black"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setGalleryImageIndex((prev) => (prev < selectedImageModal.length - 1 ? prev + 1 : 0));
+                  }}
+                  className="absolute right-4 text-white hover:text-red-500 transition-colors z-10 bg-black bg-opacity-50 rounded-full p-2 hover:bg-black"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
+            )}
+            <div className="max-w-4xl max-h-full" onClick={(e) => e.stopPropagation()}>
+              <img
+                src={getImageUrl(currentImage?.image_data || currentImage?.image_url || '')}
+                alt={`${blog.title} ${galleryImageIndex + 1}`}
+                className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                onError={(e) => {
+                  e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300"%3E%3Crect fill="%23333" width="400" height="300"/%3E%3Ctext fill="%23666" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3ENo Image%3C/text%3E%3C/svg%3E';
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setSelectedImageModal(null)}
+                className="mt-4 px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-700 transition"
+              >
+                Close
+              </button>
+              {selectedImageModal.length > 1 && (
+                <div className="text-center text-white mt-4">
+                  <span className="text-sm">{galleryImageIndex + 1} / {selectedImageModal.length}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Breadcrumb Navigation */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
         <Link
@@ -201,10 +276,11 @@ function BlogDetail() {
               <div className="space-y-4 mb-8">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {allImages.map((img, idx) => (
-                    <div key={idx} className="rounded-lg overflow-hidden border border-midnight-700">
-                      <a href={getImageUrl(img.image_data || img.image_url || '')} target="_blank" rel="noreferrer" className="block">
-                      <img src={getImageUrl(img.image_data || img.image_url || '')} alt={`${blog.title} ${idx+1}`} className="w-full h-40 object-cover" />
-                    </a>
+                    <div key={idx} className="rounded-lg overflow-hidden border border-midnight-700 cursor-pointer group" onClick={() => {
+                      setSelectedImageModal(allImages);
+                      setGalleryImageIndex(idx);
+                    }}>
+                      <img src={getImageUrl(img.image_data || img.image_url || '')} alt={`${blog.title} ${idx+1}`} className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300" />
                     </div>
                   ))}
                 </div>
@@ -283,7 +359,6 @@ function BlogDetail() {
 
               <div className="mb-4 text-text-secondary text-sm">
                 <div className="flex items-center gap-2"><CalendarIcon className="w-4 h-4 text-gold" />{new Date(blog.created_at).toLocaleDateString()}</div>
-                <div className="flex items-center gap-2 mt-2"><svg className="w-4 h-4 text-gold" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00-.293.707l-.707.707a1 1 0 101.414 1.414l1-1A1 1 0 0011 9.414V6z"></path></svg>{blog.readTime}</div>
               </div>
 
               <div className="mt-4">
