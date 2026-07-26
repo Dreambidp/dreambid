@@ -239,6 +239,23 @@ function AdminBlogs() {
     }
   };
 
+  const handleArchive = async (id, title, restore = false) => {
+    const action = restore ? 'restore' : 'archive';
+    if (!window.confirm(`Are you sure you want to ${action} "${title}"?`)) {
+      return;
+    }
+
+    try {
+      await api.put(`/blogs/${id}`, { status: restore ? 'published' : 'archived' });
+      toast.success(`Blog ${restore ? 'restored' : 'archived'} successfully`);
+      queryClient.invalidateQueries('blogs');
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || `Failed to ${action} blog`;
+      toast.error(errorMessage);
+      console.error(`Error ${action}ing blog:`, error);
+    }
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'published': return 'bg-green-100 text-green-800';
@@ -553,7 +570,7 @@ function AdminBlogs() {
                         type="submit"
                         className="flex-1 bg-gradient-to-r from-gold to-gold-hover text-midnight-950 py-2 rounded-lg hover:shadow-lg transition font-semibold"
                       >
-                        {`Update & ${formData.status === 'draft' ? 'Keep as Draft' : 'Publish'}`}
+                        {`Update & ${formData.status === 'draft' ? 'Keep as Draft' : formData.status === 'archived' ? 'Archive' : 'Publish'}`}
                       </button>
                     )}
                     <button
@@ -657,6 +674,21 @@ function AdminBlogs() {
                           >
                             Edit
                           </button>
+                          {blog.status !== 'archived' ? (
+                            <button
+                              onClick={() => handleArchive(blog.id, blog.title)}
+                              className="text-gray-300 hover:text-white transition font-medium text-sm"
+                            >
+                              Archive
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleArchive(blog.id, blog.title, true)}
+                              className="text-cyan-300 hover:text-white transition font-medium text-sm"
+                            >
+                              Restore
+                            </button>
+                          )}
                           <button
                             onClick={() => handleDelete(blog.id, blog.title)}
                             className="text-red-500 hover:text-red-600 transition font-medium text-sm"
@@ -689,6 +721,12 @@ function AdminBlogs() {
             <div className="bg-midnight-800 border border-midnight-700 rounded-lg p-6">
               <div className="text-text-secondary text-sm mb-2">{getStatusLabel('draft')}</div>
               <div className="text-3xl font-bold text-yellow-400">{blogs.filter(b => b.status === 'draft').length}</div>
+            </div>
+          )}
+          {statuses.filter(s => s.value === 'archived').length > 0 && (
+            <div className="bg-midnight-800 border border-midnight-700 rounded-lg p-6">
+              <div className="text-text-secondary text-sm mb-2">{getStatusLabel('archived')}</div>
+              <div className="text-3xl font-bold text-gray-400">{blogs.filter(b => b.status === 'archived').length}</div>
             </div>
           )}
         </div>

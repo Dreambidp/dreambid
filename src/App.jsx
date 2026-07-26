@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
+import { App as CapacitorApp } from '@capacitor/app';
+import { Capacitor } from '@capacitor/core';
 import { AuthProvider } from './contexts/AuthContext';
 import { ShortlistProvider } from './contexts/ShortlistContext';
 
@@ -55,12 +57,44 @@ const queryClient = new QueryClient({
   },
 });
 
+function AppNavigationHandler() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    let backButtonHandler;
+
+    const setupBackHandler = async () => {
+      backButtonHandler = await CapacitorApp.addListener('backButton', ({ canGoBack }) => {
+        if (canGoBack && window.history.length > 1) {
+          navigate(-1);
+        } else {
+          CapacitorApp.exitApp();
+        }
+      });
+    };
+
+    setupBackHandler();
+
+    return () => {
+      backButtonHandler?.remove();
+    };
+  }, [location.pathname, navigate]);
+
+  return null;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ShortlistProvider>
           <Router>
+            <AppNavigationHandler />
             <div className="min-h-screen bg-gray-50">
               <WhatsAppFloat />
               <Routes>

@@ -58,7 +58,13 @@ function Navbar() {
                 <Link to="/register" className="block px-4 py-3 text-text-nav hover:text-gold hover:bg-midnight-700 transition-colors">
                   Get Started
                 </Link>
-                <a href="#buying-process" className="block px-4 py-3 text-text-nav hover:text-gold hover:bg-midnight-700 transition-colors">
+                <a
+                  href="/#buying-process"
+                  onClick={() => {
+                    closeMenu();
+                  }}
+                  className="block px-4 py-3 text-text-nav hover:text-gold hover:bg-midnight-700 transition-colors"
+                >
                   How it Works
                 </a>
                 <Link to="/contact" className="block px-4 py-3 text-text-nav hover:text-gold hover:bg-midnight-700 transition-colors">
@@ -174,8 +180,10 @@ function Navbar() {
                 Get Started
               </Link>
               <a
-                href="#buying-process"
-                onClick={() => setMenuOpen(false)}
+                href="/#buying-process"
+                onClick={() => {
+                  setMenuOpen(false);
+                }}
                 className="text-text-nav hover:text-gold hover:bg-midnight-800 block px-4 py-3 rounded-btn text-base font-medium transition-colors"
               >
                 How it Works
