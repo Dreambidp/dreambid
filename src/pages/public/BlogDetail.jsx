@@ -98,7 +98,7 @@ function BlogDetail() {
 
       {/* Hero Section with Image Carousel */}
       {allImages.length > 0 && (
-        <div className="relative w-full h-96 md:h-[500px] lg:h-[600px] bg-midnight-800 overflow-hidden mb-12">
+        <div className="relative w-full h-64 md:h-[360px] lg:h-[420px] bg-midnight-800 overflow-hidden mb-8">
           {/* Main carousel image */}
           <div className="relative w-full h-full">
             <img
@@ -202,7 +202,9 @@ function BlogDetail() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {allImages.map((img, idx) => (
                     <div key={idx} className="rounded-lg overflow-hidden border border-midnight-700">
-                      <img src={getImageUrl(img.image_data || img.image_url || '')} alt={`${blog.title} ${idx+1}`} className="w-full h-64 object-cover" />
+                      <a href={getImageUrl(img.image_data || img.image_url || '')} target="_blank" rel="noreferrer" className="block">
+                      <img src={getImageUrl(img.image_data || img.image_url || '')} alt={`${blog.title} ${idx+1}`} className="w-full h-40 object-cover" />
+                    </a>
                     </div>
                   ))}
                 </div>
@@ -285,8 +287,10 @@ function BlogDetail() {
               </div>
 
               <div className="mt-4">
-                <button onClick={() => window.print()} className="w-full mb-3 px-4 py-2 bg-midnight-800 text-gold border border-midnight-700 rounded-lg">Print</button>
+                <div className="flex flex-col gap-3">
                 <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="w-full px-4 py-2 bg-gold text-midnight-950 rounded-lg">Back to Top</button>
+                <a href="/blogs" className="w-full inline-block text-center px-4 py-2 bg-midnight-800 text-gold border border-midnight-700 rounded-lg">All Articles</a>
+              </div>
               </div>
             </div>
           </aside>
