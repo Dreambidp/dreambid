@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { enquiriesAPI } from '../../services/api';
+import { closeEnquiryDetails, getActiveEnquiry, openEnquiryDetails } from '../../utils/enquiriesSelection';
 import toast from 'react-hot-toast';
 
 const getAttachmentList = (enquiry) => {
@@ -24,7 +25,9 @@ const getAttachmentList = (enquiry) => {
 function Enquiries() {
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const queryClient = useQueryClient();
+  const activeEnquiry = getActiveEnquiry(selectedEnquiry, isDetailsOpen);
 
   const { data, isLoading, error } = useQuery(
     ['enquiries', statusFilter],
@@ -57,6 +60,19 @@ function Enquiries() {
 
   const handleStatusChange = (id, newStatus) => {
     updateStatusMutation.mutate({ id, status: newStatus });
+  };
+
+  const handleEnquirySelect = (enquiry) => {
+    openEnquiryDetails(enquiry, setSelectedEnquiry, setIsDetailsOpen);
+  };
+
+  const handleDetailsClose = () => {
+    closeEnquiryDetails(setSelectedEnquiry, setIsDetailsOpen);
+  };
+
+  const handleFilterChange = (event) => {
+    setStatusFilter(event.target.value);
+    closeEnquiryDetails(setSelectedEnquiry, setIsDetailsOpen);
   };
 
   const getStatusColor = (status) => {
@@ -98,7 +114,7 @@ function Enquiries() {
           {/* Filters */}
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={handleFilterChange}
             className="px-4 py-2 bg-midnight-700 border border-midnight-600 text-text-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-gold"
           >
             <option value="">All Status</option>
@@ -122,7 +138,15 @@ function Enquiries() {
             enquiries.map((enquiry) => (
               <div
                 key={enquiry.id}
-                onClick={() => setSelectedEnquiry(enquiry)}
+                role="button"
+                tabIndex={0}
+                onClick={() => handleEnquirySelect(enquiry)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handleEnquirySelect(enquiry);
+                  }
+                }}
                 className={`bg-midnight-900 border border-midnight-700 rounded-lg p-4 cursor-pointer transition-all hover:border-gold ${
                   selectedEnquiry?.id === enquiry.id ? 'border-gold ring-2 ring-gold/20' : ''
                 }`}
@@ -152,8 +176,8 @@ function Enquiries() {
       </div>
 
       {/* Right Column - Details Panel */}
-      {selectedEnquiry && (
-        <div className="lg:col-span-1">
+      {activeEnquiry && (
+        <div className="hidden lg:block lg:col-span-1">
           <div className="bg-midnight-900 border border-midnight-700 rounded-lg p-6 sticky top-8">
             <h2 className="text-xl font-bold text-text-primary mb-6">Enquiry Details</h2>
 
@@ -164,15 +188,15 @@ function Enquiries() {
                 <div className="space-y-2">
                   <div>
                     <p className="text-xs text-text-secondary">Name</p>
-                    <p className="text-sm text-text-primary font-medium">{selectedEnquiry.name}</p>
+                    <p className="text-sm text-text-primary font-medium">{activeEnquiry.name}</p>
                   </div>
                   <div>
                     <p className="text-xs text-text-secondary">Email</p>
-                    <p className="text-sm text-text-primary font-medium break-all">{selectedEnquiry.email}</p>
+                    <p className="text-sm text-text-primary font-medium break-all">{activeEnquiry.email}</p>
                   </div>
                   <div>
                     <p className="text-xs text-text-secondary">Phone</p>
-                    <p className="text-sm text-text-primary font-medium">{selectedEnquiry.phone}</p>
+                    <p className="text-sm text-text-primary font-medium">{activeEnquiry.phone}</p>
                   </div>
                 </div>
               </div>
@@ -183,37 +207,37 @@ function Enquiries() {
                 <div className="space-y-2">
                   <div>
                     <p className="text-xs text-text-secondary">Property</p>
-                    <p className="text-sm text-text-primary font-medium">{selectedEnquiry.property_title}</p>
+                    <p className="text-sm text-text-primary font-medium">{activeEnquiry.property_title}</p>
                   </div>
-                  {selectedEnquiry.property_address && (
+                  {activeEnquiry.property_address && (
                     <div>
                       <p className="text-xs text-text-secondary">Address</p>
-                      <p className="text-sm text-text-primary">{selectedEnquiry.property_address}</p>
+                      <p className="text-sm text-text-primary">{activeEnquiry.property_address}</p>
                     </div>
                   )}
                   <div>
                     <p className="text-xs text-text-secondary">Type</p>
-                    <p className="text-sm text-text-primary font-medium">{selectedEnquiry.enquiry_type || 'General Inquiry'}</p>
+                    <p className="text-sm text-text-primary font-medium">{activeEnquiry.enquiry_type || 'General Inquiry'}</p>
                   </div>
                 </div>
               </div>
 
               {/* Message */}
-              {selectedEnquiry.message && (
+              {activeEnquiry.message && (
                 <div className="pt-4 border-t border-midnight-700">
                   <h3 className="text-sm font-semibold text-gold uppercase tracking-wide mb-3">Message</h3>
                   <p className="text-sm text-text-primary bg-midnight-800 rounded-lg p-3">
-                    {selectedEnquiry.message}
+                    {activeEnquiry.message}
                   </p>
                 </div>
               )}
 
               {/* Attachments */}
-              {getAttachmentList(selectedEnquiry).length > 0 && (
+              {getAttachmentList(activeEnquiry).length > 0 && (
                 <div className="pt-4 border-t border-midnight-700">
                   <h3 className="text-sm font-semibold text-gold uppercase tracking-wide mb-3">Attachments</h3>
                   <div className="space-y-3">
-                    {getAttachmentList(selectedEnquiry).map((attachment, index) => (
+                    {getAttachmentList(activeEnquiry).map((attachment, index) => (
                       <div key={`${attachment.url || attachment.storedName || index}`} className="rounded-lg border border-midnight-700 bg-midnight-800 p-3">
                         {attachment.mimeType?.startsWith('image/') ? (
                           <a href={attachment.url} target="_blank" rel="noreferrer" className="block">
@@ -237,10 +261,10 @@ function Enquiries() {
               <div className="pt-4 border-t border-midnight-700">
                 <h3 className="text-sm font-semibold text-gold uppercase tracking-wide mb-3">Status</h3>
                 <select
-                  value={selectedEnquiry.status}
+                  value={activeEnquiry.status}
                   onChange={(e) => {
-                    handleStatusChange(selectedEnquiry.id, e.target.value);
-                    setSelectedEnquiry({ ...selectedEnquiry, status: e.target.value });
+                    handleStatusChange(activeEnquiry.id, e.target.value);
+                    setSelectedEnquiry({ ...activeEnquiry, status: e.target.value });
                   }}
                   className="w-full px-3 py-2 bg-midnight-800 border border-midnight-600 text-text-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-gold text-sm"
                 >
@@ -257,10 +281,129 @@ function Enquiries() {
               {/* Metadata */}
               <div className="pt-4 border-t border-midnight-700">
                 <p className="text-xs text-text-secondary">
-                  Created: {new Date(selectedEnquiry.created_at).toLocaleDateString()} {new Date(selectedEnquiry.created_at).toLocaleTimeString()}
+                  Created: {new Date(activeEnquiry.created_at).toLocaleDateString()} {new Date(activeEnquiry.created_at).toLocaleTimeString()}
                 </p>
                 <p className="text-xs text-text-secondary mt-1">
-                  ID: {selectedEnquiry.id}
+                  ID: {activeEnquiry.id}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile details modal */}
+      {activeEnquiry && (
+        <div className="lg:hidden fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="w-full max-w-xl bg-midnight-900 border border-midnight-700 rounded-lg shadow-xl overflow-y-auto max-h-[90vh]">
+            <div className="flex items-center justify-between p-4 border-b border-midnight-700">
+              <h2 className="text-xl font-bold text-text-primary">Enquiry Details</h2>
+              <button
+                type="button"
+                onClick={handleDetailsClose}
+                className="text-text-secondary hover:text-white"
+              >
+                Close
+              </button>
+            </div>
+            <div className="p-6 space-y-6">
+              <div>
+                <h3 className="text-sm font-semibold text-gold uppercase tracking-wide mb-3">Contact Information</h3>
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-xs text-text-secondary">Name</p>
+                    <p className="text-sm text-text-primary font-medium">{activeEnquiry.name}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-secondary">Email</p>
+                    <p className="text-sm text-text-primary font-medium break-all">{activeEnquiry.email}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-secondary">Phone</p>
+                    <p className="text-sm text-text-primary font-medium">{activeEnquiry.phone}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-midnight-700">
+                <h3 className="text-sm font-semibold text-gold uppercase tracking-wide mb-3">Property Information</h3>
+                <div className="space-y-2">
+                  <div>
+                    <p className="text-xs text-text-secondary">Property</p>
+                    <p className="text-sm text-text-primary font-medium">{activeEnquiry.property_title}</p>
+                  </div>
+                  {activeEnquiry.property_address && (
+                    <div>
+                      <p className="text-xs text-text-secondary">Address</p>
+                      <p className="text-sm text-text-primary">{activeEnquiry.property_address}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-xs text-text-secondary">Type</p>
+                    <p className="text-sm text-text-primary font-medium">{activeEnquiry.enquiry_type || 'General Inquiry'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {activeEnquiry.message && (
+                <div className="pt-4 border-t border-midnight-700">
+                  <h3 className="text-sm font-semibold text-gold uppercase tracking-wide mb-3">Message</h3>
+                  <p className="text-sm text-text-primary bg-midnight-800 rounded-lg p-3">
+                    {activeEnquiry.message}
+                  </p>
+                </div>
+              )}
+
+              {getAttachmentList(activeEnquiry).length > 0 && (
+                <div className="pt-4 border-t border-midnight-700">
+                  <h3 className="text-sm font-semibold text-gold uppercase tracking-wide mb-3">Attachments</h3>
+                  <div className="space-y-3">
+                    {getAttachmentList(activeEnquiry).map((attachment, index) => (
+                      <div key={`${attachment.url || attachment.storedName || index}`} className="rounded-lg border border-midnight-700 bg-midnight-800 p-3">
+                        {attachment.mimeType?.startsWith('image/') ? (
+                          <a href={attachment.url} target="_blank" rel="noreferrer" className="block">
+                            <img src={attachment.url} alt={attachment.originalName || 'Attachment'} className="max-h-40 w-full rounded object-cover" />
+                          </a>
+                        ) : (
+                          <a href={attachment.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm text-gold hover:text-gold-hover">
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            <span>{attachment.originalName || 'Download attachment'}</span>
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="pt-4 border-t border-midnight-700">
+                <h3 className="text-sm font-semibold text-gold uppercase tracking-wide mb-3">Status</h3>
+                <select
+                  value={activeEnquiry.status}
+                  onChange={(e) => {
+                    handleStatusChange(activeEnquiry.id, e.target.value);
+                    setSelectedEnquiry({ ...activeEnquiry, status: e.target.value });
+                  }}
+                  className="w-full px-3 py-2 bg-midnight-800 border border-midnight-600 text-text-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-gold text-sm"
+                >
+                  <option value="new">New</option>
+                  <option value="contacted">Contacted</option>
+                  <option value="resolved">Resolved</option>
+                  <option value="closed">Closed</option>
+                  <option value="not_interested">Not Interested</option>
+                  <option value="unable_to_connect">Unable to Connect</option>
+                  <option value="call_later">Asked to Call Later</option>
+                </select>
+              </div>
+
+              <div className="pt-4 border-t border-midnight-700">
+                <p className="text-xs text-text-secondary">
+                  Created: {new Date(activeEnquiry.created_at).toLocaleDateString()} {new Date(activeEnquiry.created_at).toLocaleTimeString()}
+                </p>
+                <p className="text-xs text-text-secondary mt-1">
+                  ID: {activeEnquiry.id}
                 </p>
               </div>
             </div>
