@@ -88,6 +88,30 @@ function AppNavigationHandler() {
   return null;
 }
 
+function HashScrollHandler() {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!location.hash) return;
+
+    const id = location.hash.replace('#', '');
+    // Delay slightly to allow route components to mount
+    const t = setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        // fallback: try scrolling to top of page
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }, 50);
+
+    return () => clearTimeout(t);
+  }, [location.pathname, location.hash]);
+
+  return null;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -95,6 +119,7 @@ function App() {
         <ShortlistProvider>
           <Router>
             <AppNavigationHandler />
+            <HashScrollHandler />
             <div className="min-h-screen bg-gray-50">
               <WhatsAppFloat />
               <Routes>
