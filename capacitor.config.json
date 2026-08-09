@@ -2,7 +2,7 @@
   "appId": "com.dreambid.app",
   "appName": "DreamBid",
   "webDir": "dist",
-  "icon": "public/Dreambid_logo2.jpg",
+  "icon": "public/logo_mob.jpg",
   "server": {
     "androidScheme": "https",
     "cleartext": true

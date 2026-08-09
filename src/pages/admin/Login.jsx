@@ -5,7 +5,7 @@ import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 function Login() {
-  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -16,7 +16,7 @@ function Login() {
     setLoading(true);
 
     try {
-      const response = await login({ email, password });
+      const response = await login({ phone, password });
       const { token, user } = response;
 
       // Check if user is admin or staff
@@ -71,20 +71,20 @@ function Login() {
 
             {/* Form */}
             <form className="space-y-5" onSubmit={handleSubmit}>
-              {/* Email Field */}
+              {/* Phone Field */}
               <div className="space-y-2">
-                <label htmlFor="email" className="label">
-                  Email Address
+                <label htmlFor="phone" className="label">
+                  Phone Number
                 </label>
                 <div className="relative">
                   <input
-                    id="email"
-                    type="email"
+                    id="phone"
+                    type="tel"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                     className="input-field pl-10"
-                    placeholder="admin@dreambid.com"
+                    placeholder="5551234567"
                   />
                   <svg className="w-5 h-5 text-text-secondary absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -142,7 +142,7 @@ function Login() {
               <p className="text-center text-sm text-text-secondary">
                 Demo Credentials:
                 <br />
-                <span className="font-semibold text-text-soft">admin@dreambid.com</span> / <span className="font-semibold text-text-soft">admin123</span>
+                <span className="font-semibold text-text-soft">5551234567</span> / <span className="font-semibold text-text-soft">admin123456</span>
               </p>
             </div>
           </div>
