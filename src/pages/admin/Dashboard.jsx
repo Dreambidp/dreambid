@@ -14,13 +14,13 @@ const statusClassNames = {
 };
 
 const metricCards = [
-  { key: 'totalProperties', label: 'Total Properties', color: 'text-white', icon: '🏠' },
-  { key: 'activeAuctions', label: 'Active Auctions', color: 'text-emerald-300', icon: '⚡' },
-  { key: 'upcomingAuctions', label: 'Upcoming Auctions', color: 'text-sky-300', icon: '⏳' },
-  { key: 'newEnquiries', label: 'New Enquiries', color: 'text-orange-300', icon: '✉️' },
-  { key: 'totalViews', label: 'Total Views', color: 'text-violet-300', icon: '👁️' },
-  { key: 'totalShares', label: 'Total Shares', color: 'text-cyan-300', icon: '🔗' },
-  { key: 'totalEnquiries', label: 'Total Enquiries', color: 'text-rose-300', icon: '📥' },
+  { key: 'totalProperties', label: 'Total Properties', valueClass: 'text-white' },
+  { key: 'activeAuctions', label: 'Active Auctions', valueClass: 'text-emerald-300' },
+  { key: 'upcomingAuctions', label: 'Upcoming Auctions', valueClass: 'text-sky-300' },
+  { key: 'newEnquiries', label: 'New Enquiries', valueClass: 'text-orange-300' },
+  { key: 'totalViews', label: 'Total Views', valueClass: 'text-violet-300' },
+  { key: 'totalShares', label: 'Total Shares', valueClass: 'text-cyan-300' },
+  { key: 'totalEnquiries', label: 'Total Enquiries', valueClass: 'text-rose-300' },
 ];
 
 function Dashboard() {
@@ -44,11 +44,11 @@ function Dashboard() {
     return new Date().toLocaleString();
   }, [data]);
 
-  const renderStatValue = (value) => {
+  const renderStatValue = (value, className = '') => {
     if (isLoading) {
       return <span className="block h-8 w-16 rounded bg-midnight-800 animate-pulse" />;
     }
-    return <span className="text-3xl font-semibold text-text-primary">{value ?? '0'}</span>;
+    return <span className={`text-3xl font-semibold ${className}`}>{value ?? '0'}</span>;
   };
 
   const getStatusClassName = (status) => {
@@ -90,12 +90,9 @@ function Dashboard() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             {metricCards.slice(0, 4).map((card) => (
               <div key={card.key} className="min-w-0 rounded-3xl border border-midnight-700 bg-midnight-900 p-6 shadow-sm">
-                <div className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className="text-sm uppercase tracking-[0.24em] text-text-secondary">{card.label}</p>
-                    {renderStatValue(stats[card.key])}
-                  </div>
-                  <div className="rounded-2xl bg-midnight-800 p-3 text-xl">{card.icon}</div>
+                <p className="text-sm uppercase tracking-[0.24em] text-text-secondary">{card.label}</p>
+                <div className="mt-4">
+                  {renderStatValue(stats[card.key], card.valueClass)}
                 </div>
               </div>
             ))}
@@ -105,7 +102,9 @@ function Dashboard() {
             {metricCards.slice(4).map((card) => (
               <div key={card.key} className="min-w-0 rounded-3xl border border-midnight-700 bg-midnight-900 p-6 shadow-sm">
                 <p className="text-sm uppercase tracking-[0.24em] text-text-secondary">{card.label}</p>
-                {renderStatValue(stats[card.key])}
+                <div className="mt-4">
+                  {renderStatValue(stats[card.key], card.valueClass)}
+                </div>
               </div>
             ))}
           </div>
