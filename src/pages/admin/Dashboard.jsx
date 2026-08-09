@@ -39,7 +39,10 @@ function Dashboard() {
   const stats = dashboard?.stats || {};
   const enquiries = dashboard?.recent_enquiries || [];
 
-  const lastUpdated = useMemo(() => new Date().toLocaleString(), []);
+  const lastUpdated = useMemo(() => {
+    if (!data) return 'Fetching...';
+    return new Date().toLocaleString();
+  }, [data]);
 
   const renderStatValue = (value) => {
     if (isLoading) {
@@ -98,7 +101,7 @@ function Dashboard() {
             ))}
           </div>
 
-          <div className="grid gap-4 xl:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {metricCards.slice(4).map((card) => (
               <div key={card.key} className="rounded-3xl border border-midnight-700 bg-midnight-900 p-6 shadow-sm">
                 <p className="text-sm uppercase tracking-[0.24em] text-text-secondary">{card.label}</p>
@@ -113,8 +116,17 @@ function Dashboard() {
                 <h2 className="text-xl font-semibold text-text-primary">Recent Enquiries</h2>
                 <p className="text-sm text-text-secondary">Latest enquiries from buyers and leads.</p>
               </div>
-              <div className="rounded-full bg-midnight-800 px-4 py-2 text-xs uppercase tracking-[0.2em] text-text-secondary">
-                {enquiries.length} recent entries
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="rounded-full bg-midnight-800 px-4 py-2 text-xs uppercase tracking-[0.2em] text-text-secondary">
+                  {enquiries.length} recent entries
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate('/admin/enquiries')}
+                  className="inline-flex items-center justify-center rounded-full border border-midnight-700 bg-midnight-950 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white transition hover:border-gold hover:text-gold"
+                >
+                  View all enquiries
+                </button>
               </div>
             </div>
 
