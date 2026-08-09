@@ -1007,6 +1007,50 @@ router.put('/:id/toggle-featured', authenticate, authorize('admin', 'staff'), as
   }
 });
 
+// @route   GET /api/properties/dashboard-stats
+// @desc    Get aggregated admin dashboard statistics
+// @access  Private (Admin/Staff)
+router.get('/dashboard-stats', authenticate, authorize('admin', 'staff'), async (req, res) => {
+  try {
+    const [totalPropertiesRes, activeAuctionsRes, upcomingAuctionsRes, totalViewsRes, totalSharesRes, totalEnquiriesRes, newEnquiriesRes, recentEnquiriesRes] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM properties WHERE is_active = true'),
+      pool.query("SELECT COUNT(*) FROM properties WHERE status = 'active' AND is_active = true"),
+      pool.query("SELECT COUNT(*) FROM properties WHERE status = 'upcoming' AND is_active = true"),
+      pool.query('SELECT COALESCE(SUM(views_count), 0) AS total FROM properties WHERE is_active = true'),
+      pool.query('SELECT COALESCE(SUM(shares_count), 0) AS total FROM properties WHERE is_active = true'),
+      pool.query('SELECT COUNT(*) FROM enquiries'),
+      pool.query("SELECT COUNT(*) FROM enquiries WHERE status = 'new'"),
+      pool.query(`
+        SELECT e.id, e.name, e.email, e.phone, e.status, e.property_title, e.property_address, e.created_at
+        FROM enquiries e
+        ORDER BY e.created_at DESC
+        LIMIT 6
+      `),
+    ]);
+
+    const stats = {
+      totalProperties: parseInt(totalPropertiesRes.rows[0].count, 10),
+      activeAuctions: parseInt(activeAuctionsRes.rows[0].count, 10),
+      upcomingAuctions: parseInt(upcomingAuctionsRes.rows[0].count, 10),
+      totalViews: parseInt(totalViewsRes.rows[0].total, 10),
+      totalShares: parseInt(totalSharesRes.rows[0].total, 10),
+      totalEnquiries: parseInt(totalEnquiriesRes.rows[0].count, 10),
+      newEnquiries: parseInt(newEnquiriesRes.rows[0].count, 10),
+    };
+
+    res.json({
+      message: 'Dashboard stats fetched successfully',
+      data: {
+        stats,
+        recent_enquiries: recentEnquiriesRes.rows,
+      },
+    });
+  } catch (error) {
+    console.error('Get dashboard stats error:', error);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 // @route   GET /api/properties/:id
 // @desc    Get single property by ID
 // @access  Public

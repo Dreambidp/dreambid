@@ -89,6 +89,7 @@ export const propertiesAPI = {
   uploadPdf: (id, formData) => api.post(`/properties/${id}/pdf`, formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
+  getDashboardStats: () => api.get('/properties/dashboard-stats'),
 };
 
 export const enquiriesAPI = {

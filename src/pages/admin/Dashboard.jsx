@@ -1,168 +1,161 @@
-import { useQuery, useQueryClient } from 'react-query';
-import { propertiesAPI, enquiriesAPI } from '../../services/api';
-import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useQuery } from 'react-query';
+import { propertiesAPI } from '../../services/api';
+
+const statusClassNames = {
+  new: 'bg-yellow-500/15 text-yellow-300 border border-yellow-500/25',
+  contacted: 'bg-blue-500/15 text-blue-300 border border-blue-500/25',
+  resolved: 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25',
+  closed: 'bg-gray-500/15 text-gray-300 border border-gray-500/25',
+  not_interested: 'bg-red-500/15 text-red-300 border border-red-500/25',
+  unable_to_connect: 'bg-orange-500/15 text-orange-300 border border-orange-500/25',
+  call_later: 'bg-purple-500/15 text-purple-300 border border-purple-500/25',
+};
+
+const metricCards = [
+  { key: 'totalProperties', label: 'Total Properties', color: 'text-white', icon: '🏠' },
+  { key: 'activeAuctions', label: 'Active Auctions', color: 'text-emerald-300', icon: '⚡' },
+  { key: 'upcomingAuctions', label: 'Upcoming Auctions', color: 'text-sky-300', icon: '⏳' },
+  { key: 'newEnquiries', label: 'New Enquiries', color: 'text-orange-300', icon: '✉️' },
+  { key: 'totalViews', label: 'Total Views', color: 'text-violet-300', icon: '👁️' },
+  { key: 'totalShares', label: 'Total Shares', color: 'text-cyan-300', icon: '🔗' },
+  { key: 'totalEnquiries', label: 'Total Enquiries', color: 'text-rose-300', icon: '📥' },
+];
 
 function Dashboard() {
-  const queryClient = useQueryClient();
-  const [lastRefresh, setLastRefresh] = useState(new Date());
+  const navigate = useNavigate();
+  const {
+    data,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery('dashboardStats', propertiesAPI.getDashboardStats, {
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 10,
+  });
 
-  // Fetch all properties including expired for dashboard stats
-  const { data: propertiesData, isLoading: propertiesLoading, refetch: refetchProperties, error: propsError } = useQuery(
-    ['properties', ''], // Use same query key pattern as AdminProperties
-    () => propertiesAPI.getAll({ limit: 1000, status: '' }), // Empty string = all properties including expired
-    {
-      staleTime: 0,
-      cacheTime: 5000,
-      refetchInterval: 30000, // Refetch every 30 seconds
-      refetchOnWindowFocus: true,
+  const dashboard = data?.data?.data;
+  const stats = dashboard?.stats || {};
+  const enquiries = dashboard?.recent_enquiries || [];
+
+  const lastUpdated = useMemo(() => new Date().toLocaleString(), []);
+
+  const renderStatValue = (value) => {
+    if (isLoading) {
+      return <span className="block h-8 w-16 rounded bg-midnight-800 animate-pulse" />;
     }
-  );
-
-  const { data: enquiriesData, isLoading: enquiriesLoading, refetch: refetchEnquiries } = useQuery(
-    ['enquiries'],
-    () => enquiriesAPI.getAll({ limit: 1000 }),
-    {
-      staleTime: 0,
-      cacheTime: 5000,
-      refetchInterval: 30000, // Refetch every 30 seconds
-      refetchOnWindowFocus: true,
-    }
-  );
-
-  const handleRefresh = async () => {
-    await Promise.all([refetchProperties(), refetchEnquiries()]);
-    setLastRefresh(new Date());
+    return <span className="text-3xl font-semibold text-text-primary">{value ?? '0'}</span>;
   };
 
-  const properties = propertiesData?.data?.data?.properties || [];
-  const enquiries = enquiriesData?.data?.enquiries || [];
-
-  const stats = {
-    totalProperties: properties.length,
-    activeAuctions: properties.filter(p => p.status === 'active').length,
-    upcomingAuctions: properties.filter(p => p.status === 'upcoming').length,
-    expiredAuctions: properties.filter(p => p.status === 'expired').length,
-    newEnquiries: enquiries.filter(e => e.status === 'new').length,
-    totalEnquiries: enquiries.length,
-    totalViews: properties.reduce((sum, p) => sum + (p.views_count || 0), 0),
-    totalShares: properties.reduce((sum, p) => sum + (p.shares_count || 0), 0),
+  const getStatusClassName = (status) => {
+    return statusClassNames[status] || 'bg-gray-500/15 text-gray-300 border border-gray-500/25';
   };
-
-  if (propertiesLoading || enquiriesLoading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-text-secondary">Loading dashboard...</div>
-      </div>
-    );
-  }
 
   return (
-    <div>
-      <div className="mb-8">
-        <div className="mb-4">
+    <div className="space-y-8">
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
           <h1 className="text-3xl font-bold text-text-primary">Dashboard</h1>
-          <p className="text-sm text-text-muted mt-1">
-            Last updated: {lastRefresh.toLocaleTimeString()}
-          </p>
+          <p className="text-sm text-text-secondary mt-1">Last updated: {lastUpdated}</p>
         </div>
-        <div className="flex gap-3">
+
+        <div className="flex flex-col gap-3 sm:flex-row">
           <button
-            onClick={handleRefresh}
-            disabled={propertiesLoading || enquiriesLoading}
-            className="px-3 py-1.5 bg-midnight-700 text-text-primary text-sm rounded-md hover:bg-midnight-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 border border-midnight-600"
+            type="button"
+            onClick={() => refetch()}
+            className="inline-flex items-center justify-center rounded-lg border border-midnight-700 bg-midnight-900 px-4 py-2 text-sm font-semibold text-text-primary transition hover:border-gold hover:text-white"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            {propertiesLoading || enquiriesLoading ? 'Refreshing...' : 'Refresh'}
+            Refresh
           </button>
-          <Link
-            to="/admin/properties/new"
-            className="bg-gold text-midnight-950 px-3 py-1.5 text-sm rounded-md hover:bg-gold/90 transition font-medium"
+          <button
+            type="button"
+            onClick={() => navigate('/admin/properties/new')}
+            className="inline-flex items-center justify-center rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-midnight-950 transition hover:bg-gold/90"
           >
             Add Property
-          </Link>
+          </button>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-midnight-900 border border-midnight-700 p-6 rounded-lg">
-          <h3 className="text-lg font-semibold text-text-primary">Total Properties</h3>
-          <p className="text-3xl font-bold text-red-600 mt-2">{stats.totalProperties}</p>
+      {error ? (
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-sm text-red-100">
+          Failed to load dashboard data. Please refresh or try again later.
         </div>
-        <div className="bg-midnight-900 border border-midnight-700 p-6 rounded-lg">
-          <h3 className="text-lg font-semibold text-text-primary">Active Auctions</h3>
-          <p className="text-3xl font-bold text-green-600 mt-2">{stats.activeAuctions}</p>
-        </div>
-        <div className="bg-midnight-900 border border-midnight-700 p-6 rounded-lg">
-          <h3 className="text-lg font-semibold text-text-primary">Upcoming Auctions</h3>
-          <p className="text-3xl font-bold text-yellow-600 mt-2">{stats.upcomingAuctions}</p>
-        </div>
-        <div className="bg-midnight-900 border border-midnight-700 p-6 rounded-lg">
-          <h3 className="text-lg font-semibold text-text-primary">New Enquiries</h3>
-          <p className="text-3xl font-bold text-orange-600 mt-2">{stats.newEnquiries}</p>
-        </div>
-      </div>
-
-      {/* Additional Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-midnight-900 border border-midnight-700 p-6 rounded-lg">
-          <h3 className="text-lg font-semibold text-text-primary">Total Views</h3>
-          <p className="text-3xl font-bold text-purple-600 mt-2">{stats.totalViews}</p>
-        </div>
-        <div className="bg-midnight-900 border border-midnight-700 p-6 rounded-lg">
-          <h3 className="text-lg font-semibold text-text-primary">Total Shares</h3>
-          <p className="text-3xl font-bold text-indigo-600 mt-2">{stats.totalShares}</p>
-        </div>
-        <div className="bg-midnight-900 border border-midnight-700 p-6 rounded-lg">
-          <h3 className="text-lg font-semibold text-text-primary">Total Enquiries</h3>
-          <p className="text-3xl font-bold text-pink-600 mt-2">{stats.totalEnquiries}</p>
-        </div>
-      </div>
-
-      {/* Recent Enquiries */}
-      <div className="bg-midnight-900 border border-midnight-700 rounded-lg">
-        <div className="p-6 border-b border-midnight-700">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-bold text-text-primary">Recent Enquiries</h2>
-            <Link
-              to="/admin/enquiries"
-              className="text-red-600 hover:text-red-700 text-sm font-medium"
-            >
-              View All →
-            </Link>
-          </div>
-        </div>
-        <div className="p-6">
-          {enquiries.slice(0, 5).length === 0 ? (
-            <p className="text-text-muted text-center py-4">No enquiries yet</p>
-          ) : (
-            <div className="space-y-4">
-              {enquiries.slice(0, 5).map((enquiry) => (
-                <div key={enquiry.id} className="border-b border-midnight-700 pb-4 last:border-0">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-semibold text-text-primary">{enquiry.name}</p>
-                      <p className="text-sm text-text-secondary">{enquiry.email} • {enquiry.phone}</p>
-                      <p className="text-sm text-text-muted mt-1">{enquiry.property_title}</p>
-                    </div>
-                    <span className={`px-2 py-1 text-xs rounded ${
-                      enquiry.status === 'new' ? 'bg-yellow-100 text-yellow-800' :
-                      enquiry.status === 'contacted' ? 'bg-red-100 text-red-800' :
-                      enquiry.status === 'resolved' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {enquiry.status}
-                    </span>
+      ) : (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {metricCards.slice(0, 4).map((card) => (
+              <div key={card.key} className="rounded-3xl border border-midnight-700 bg-midnight-900 p-6 shadow-sm">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.24em] text-text-secondary">{card.label}</p>
+                    {renderStatValue(stats[card.key])}
                   </div>
+                  <div className="rounded-2xl bg-midnight-800 p-3 text-xl">{card.icon}</div>
                 </div>
-              ))}
+              </div>
+            ))}
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-3">
+            {metricCards.slice(4).map((card) => (
+              <div key={card.key} className="rounded-3xl border border-midnight-700 bg-midnight-900 p-6 shadow-sm">
+                <p className="text-sm uppercase tracking-[0.24em] text-text-secondary">{card.label}</p>
+                {renderStatValue(stats[card.key])}
+              </div>
+            ))}
+          </div>
+
+          <div className="rounded-3xl border border-midnight-700 bg-midnight-900 p-6 shadow-sm">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-text-primary">Recent Enquiries</h2>
+                <p className="text-sm text-text-secondary">Latest enquiries from buyers and leads.</p>
+              </div>
+              <div className="rounded-full bg-midnight-800 px-4 py-2 text-xs uppercase tracking-[0.2em] text-text-secondary">
+                {enquiries.length} recent entries
+              </div>
             </div>
-          )}
-        </div>
-      </div>
+
+            <div className="mt-6 space-y-3">
+              {isLoading ? (
+                Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="rounded-3xl border border-midnight-700 bg-midnight-800 p-4 animate-pulse" />
+                ))
+              ) : enquiries.length === 0 ? (
+                <div className="rounded-3xl border border-midnight-700 bg-midnight-800 p-8 text-center text-text-secondary">
+                  No recent enquiries yet.
+                </div>
+              ) : (
+                enquiries.map((enquiry) => (
+                  <div key={enquiry.id} className="rounded-3xl border border-midnight-700 bg-midnight-950 p-4 sm:p-5">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="min-w-0">
+                        <h3 className="truncate text-lg font-semibold text-text-primary">{enquiry.name}</h3>
+                        <p className="text-sm text-text-secondary truncate">{enquiry.email} • {enquiry.phone}</p>
+                      </div>
+                      <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${getStatusClassName(enquiry.status)}`}>
+                        {enquiry.status?.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.18em] text-text-secondary">Property</p>
+                        <p className="mt-1 text-sm text-text-primary">{enquiry.property_title}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs uppercase tracking-[0.18em] text-text-secondary">Address</p>
+                        <p className="mt-1 text-sm text-text-primary truncate">{enquiry.property_address || 'N/A'}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
