@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import UserActivity from '../models/UserActivity.js';
+import pool from '../config/database.js';
 
 class UserController {
   static formatUserResponse(user) {
