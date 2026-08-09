@@ -102,8 +102,8 @@ function SignUp() {
       <div className="w-full max-w-md bg-midnight-800 rounded-lg shadow-2xl p-8 border border-midnight-700">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-700 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-4">
-            <span className="text-white font-bold text-xl">D</span>
+          <div className="w-20 h-20 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-4 bg-midnight-900">
+            <img src="/logo.png" alt="DreamBid logo" className="h-16 w-auto object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
           <p className="text-text-nav">Join DreamBid and start exploring properties</p>
