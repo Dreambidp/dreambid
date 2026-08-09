@@ -25,7 +25,9 @@ function Users() {
       refetchOnWindowFocus: true,
       onSuccess: () => setFetchError(null),
       onError: (error) => {
-        setFetchError(error.response?.data?.message || error.message || 'Failed to fetch users');
+        const status = error.response?.status;
+        const detail = error.response?.data?.message || error.response?.data || error.message || 'Failed to fetch users';
+        setFetchError(status ? `${status}: ${detail}` : detail);
       }
     }
   );
@@ -257,44 +259,6 @@ function Users() {
                   </div>
                 </div>
 
-                {/* Activity Stats */}
-                {userDetailsData.data.stats && (
-                  <div className="border-t border-midnight-700 pt-4">
-                    <h3 className="font-semibold text-text-primary mb-3">Activity Summary (Last 30 days)</h3>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-midnight-800 border border-midnight-700 p-3 rounded">
-                        <p className="text-sm text-text-muted">Total Activities</p>
-                        <p className="text-2xl font-bold text-text-primary">{userDetailsData.data.stats.total_activities || 0}</p>
-                      </div>
-                      <div className="bg-midnight-800 border border-midnight-700 p-3 rounded">
-                        <p className="text-sm text-text-muted">Last Activity</p>
-                        <p className="text-lg font-bold text-text-primary">
-                          {userDetailsData.data.stats.last_activity_date 
-                            ? new Date(userDetailsData.data.stats.last_activity_date).toLocaleDateString()
-                            : 'Never'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Recent Activities */}
-                {userDetailsData.data.activities && userDetailsData.data.activities.length > 0 && (
-                  <div className="border-t border-midnight-700 pt-4">
-                    <h3 className="font-semibold text-text-primary mb-3">Recent Activities</h3>
-                    <div className="space-y-2 max-h-40 overflow-y-auto">
-                      {userDetailsData.data.activities.map((activity) => (
-                        <div key={activity.id} className="text-sm border-b border-midnight-700 pb-2 last:border-0">
-                          <p className="font-medium text-text-primary capitalize">{activity.action_type}</p>
-                          <p className="text-xs text-text-muted capitalize">{activity.resource_type}</p>
-                          <p className="text-xs text-text-muted">
-                            {new Date(activity.created_at).toLocaleString()}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             ) : (
               <div className="p-6 text-center text-gray-600">Failed to load user details</div>
