@@ -67,7 +67,7 @@ function SignUp() {
     e.preventDefault();
 
     if (!validateForm()) {
-      toast.error('Please fix the errors in the form');
+      toast.error('Please check the details you have input');
       return;
     }
 
@@ -83,8 +83,7 @@ function SignUp() {
       toast.success('Account created successfully!');
       navigate('/');
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.';
-      toast.error(errorMessage);
+      toast.error('Please check the details you have input');
       
       if (error.response?.status === 409) {
         setErrors(prev => ({

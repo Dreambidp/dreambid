@@ -54,7 +54,7 @@ function Login() {
     e.preventDefault();
 
     if (!validateForm()) {
-      toast.error('Please fix the errors in the form');
+      toast.error('Please check the details you have input');
       return;
     }
 
@@ -96,8 +96,7 @@ function Login() {
         navigate('/dashboard');
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || error.response?.data?.errors?.[0]?.msg || 'Login failed. Please try again.';
-      toast.error(errorMessage);
+      toast.error('Please check the details you have input');
       
       if (error.response?.status === 401) {
         setErrors(prev => ({
@@ -115,8 +114,8 @@ function Login() {
       <div className="w-full max-w-md bg-midnight-800 rounded-lg shadow-2xl p-8 border border-midnight-700">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-700 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-4">
-            <span className="text-white font-bold text-xl">D</span>
+          <div className="w-20 h-20 rounded-xl flex items-center justify-center shadow-lg mx-auto mb-4 bg-midnight-900">
+            <img src="/logo.png" alt="DreamBid logo" className="h-16 w-auto object-contain" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
           <p className="text-text-nav">Sign in to your DreamBid account</p>

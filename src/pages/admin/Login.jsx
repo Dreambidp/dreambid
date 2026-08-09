@@ -30,7 +30,7 @@ function Login() {
       // Navigate to dashboard
       navigate('/admin/dashboard', { replace: true });
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed. Please check your credentials.');
+      toast.error('Please check the details you have input');
       setLoading(false);
     }
   };
@@ -84,7 +84,7 @@ function Login() {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="input-field pl-10"
-                    placeholder="5551234567"
+                    placeholder="Enter your admin phone"
                   />
                   <svg className="w-5 h-5 text-text-secondary absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -137,14 +137,6 @@ function Login() {
               </button>
             </form>
 
-            {/* Footer */}
-            <div className="pt-4 border-t border-midnight-700">
-              <p className="text-center text-sm text-text-secondary">
-                Demo Credentials:
-                <br />
-                <span className="font-semibold text-text-soft">5551234567</span> / <span className="font-semibold text-text-soft">admin123456</span>
-              </p>
-            </div>
           </div>
 
           {/* Bottom Info */}
