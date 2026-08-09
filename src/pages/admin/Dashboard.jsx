@@ -56,25 +56,25 @@ function Dashboard() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 space-y-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold text-text-primary">Dashboard</h1>
           <p className="text-sm text-text-secondary mt-1">Last updated: {lastUpdated}</p>
         </div>
 
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <button
             type="button"
             onClick={() => refetch()}
-            className="inline-flex items-center justify-center rounded-lg border border-midnight-700 bg-midnight-900 px-4 py-2 text-sm font-semibold text-text-primary transition hover:border-gold hover:text-white"
+            className="w-full sm:w-auto inline-flex items-center justify-center rounded-lg border border-midnight-700 bg-midnight-900 px-4 py-2 text-sm font-semibold text-text-primary transition hover:border-gold hover:text-white"
           >
             Refresh
           </button>
           <button
             type="button"
             onClick={() => navigate('/admin/properties/new')}
-            className="inline-flex items-center justify-center rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-midnight-950 transition hover:bg-gold/90"
+            className="w-full sm:w-auto inline-flex items-center justify-center rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-midnight-950 transition hover:bg-gold/90"
           >
             Add Property
           </button>
@@ -87,9 +87,9 @@ function Dashboard() {
         </div>
       ) : (
         <>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
             {metricCards.slice(0, 4).map((card) => (
-              <div key={card.key} className="rounded-3xl border border-midnight-700 bg-midnight-900 p-6 shadow-sm">
+              <div key={card.key} className="min-w-0 rounded-3xl border border-midnight-700 bg-midnight-900 p-6 shadow-sm">
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <p className="text-sm uppercase tracking-[0.24em] text-text-secondary">{card.label}</p>
@@ -101,9 +101,9 @@ function Dashboard() {
             ))}
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
             {metricCards.slice(4).map((card) => (
-              <div key={card.key} className="rounded-3xl border border-midnight-700 bg-midnight-900 p-6 shadow-sm">
+              <div key={card.key} className="min-w-0 rounded-3xl border border-midnight-700 bg-midnight-900 p-6 shadow-sm">
                 <p className="text-sm uppercase tracking-[0.24em] text-text-secondary">{card.label}</p>
                 {renderStatValue(stats[card.key])}
               </div>
@@ -151,16 +151,16 @@ function Dashboard() {
                         {enquiry.status?.replace(/_/g, ' ')}
                       </span>
                     </div>
-                    <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.18em] text-text-secondary">Property</p>
-                        <p className="mt-1 text-sm text-text-primary">{enquiry.property_title}</p>
+                            <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.18em] text-text-secondary">Property</p>
+                          <p className="mt-1 text-sm text-text-primary">{enquiry.property_title}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.18em] text-text-secondary">Address</p>
+                          <p className="mt-1 text-sm text-text-primary truncate">{enquiry.property_address || 'N/A'}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-xs uppercase tracking-[0.18em] text-text-secondary">Address</p>
-                        <p className="mt-1 text-sm text-text-primary truncate">{enquiry.property_address || 'N/A'}</p>
-                      </div>
-                    </div>
                   </div>
                 ))
               )}
