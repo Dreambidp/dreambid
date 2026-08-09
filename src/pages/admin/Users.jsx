@@ -9,6 +9,7 @@ function Users() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUser, setSelectedUser] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [fetchError, setFetchError] = useState(null);
   const itemsPerPage = 10;
 
   // Fetch all users
@@ -22,6 +23,10 @@ function Users() {
     {
       refetchInterval: 30000,
       refetchOnWindowFocus: true,
+      onSuccess: () => setFetchError(null),
+      onError: (error) => {
+        setFetchError(error.response?.data?.message || error.message || 'Failed to fetch users');
+      }
     }
   );
 
@@ -108,6 +113,11 @@ function Users() {
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
             <div className="text-text-secondary">Loading users...</div>
+          </div>
+        ) : fetchError ? (
+          <div className="text-center py-8 text-red-400">
+            <p className="font-medium">Failed to load users</p>
+            <p className="text-sm text-red-200 mt-2">{fetchError}</p>
           </div>
         ) : users.length === 0 ? (
           <div className="text-center py-8 text-text-muted">
