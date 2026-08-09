@@ -14,8 +14,18 @@ const mapOptions = {
 };
 
 export default function PropertyMap({ center }) {
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+
+  if (!apiKey) {
+    return (
+      <div className="flex h-full items-center justify-center bg-slate-900 text-center text-sm text-text-secondary">
+        Google Maps is unavailable because the API key is not configured.
+      </div>
+    );
+  }
+
   return (
-    <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
+    <LoadScript googleMapsApiKey={apiKey}>
       <GoogleMap
         mapContainerStyle={mapContainerStyle}
         center={center}

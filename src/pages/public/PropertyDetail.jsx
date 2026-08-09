@@ -73,23 +73,34 @@ const buyingProcessSteps = [
 ];
 
 // Sanitize embed code to prevent XSS attacks
-// Only allows specific iframe attributes and removes script tags
+// Only allows iframe tags with safe src URLs and trusted iframe attributes
 const sanitizeEmbedCode = (code) => {
   if (!code || typeof code !== 'string') return null;
-  
-  // Only allow iframe tags with specific attributes
-  const iframeRegex = /<iframe\s+(?:[^>]*\s)?src="([^"]*)"(?:[^>]*)?><\/iframe>/gi;
-  const matches = iframeRegex.exec(code);
-  
-  if (matches && matches[1]) {
-    // Validate the src is a safe URL (https only, no javascript:)
-    const src = matches[1];
-    if (!src.startsWith('javascript:') && (src.startsWith('http') || src.startsWith('//'))) {
-      return `<iframe src="${src}" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>`;
-    }
+
+  if (typeof DOMParser === 'undefined') return null;
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(code, 'text/html');
+  const iframe = doc.querySelector('iframe');
+
+  if (!iframe) return null;
+
+  const src = iframe.getAttribute('src')?.trim();
+  if (!src) return null;
+
+  const normalizedSrc = src.toLowerCase();
+  if (normalizedSrc.startsWith('javascript:')) return null;
+  if (!normalizedSrc.startsWith('http://') && !normalizedSrc.startsWith('https://') && !normalizedSrc.startsWith('//')) {
+    return null;
   }
-  
-  return null;
+
+  const width = iframe.getAttribute('width') || '100%';
+  const height = iframe.getAttribute('height') || '100%';
+  const style = iframe.getAttribute('style') || 'border:0;';
+  const loading = iframe.getAttribute('loading') || 'lazy';
+  const allowFullScreen = iframe.hasAttribute('allowfullscreen') ? ' allowfullscreen' : '';
+
+  return `<iframe src="${src}" width="${width}" height="${height}" frameborder="0" style="${style}"${allowFullScreen} loading="${loading}" aria-hidden="false" tabindex="0"></iframe>`;
 };
 
 function PropertyDetail() {
@@ -761,7 +772,7 @@ function PropertyDetail() {
                   <div dangerouslySetInnerHTML={{ __html: sanitizeEmbedCode(property.map_embed_code) }} />
                 </div>
               </div>
-            ) : center && (
+            ) : center ? (
               <div className="bg-midnight-900 border border-midnight-700 rounded-2xl shadow-sm p-6">
                 <h3 className="text-lg font-semibold text-text-primary mb-4">Location</h3>
                 <div>
@@ -784,7 +795,14 @@ function PropertyDetail() {
                   </button>
                 </div>
               </div>
-            )}
+            ) : property?.map_embed_code ? (
+              <div className="bg-midnight-900 border border-midnight-700 rounded-2xl shadow-sm p-6">
+                <h3 className="text-lg font-semibold text-text-primary mb-4">Location</h3>
+                <div className="rounded-lg border border-red-500 bg-[#1f2937] p-4 text-sm text-red-200">
+                  Unable to display the saved map embed code. Please verify the Google Maps iframe code or provide valid coordinates.
+                </div>
+              </div>
+            ) : null}
 
             {/* Information Section */}
             <div className="bg-midnight-900 border border-midnight-700 rounded-2xl shadow-sm p-6">
