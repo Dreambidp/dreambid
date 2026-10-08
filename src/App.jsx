@@ -25,6 +25,8 @@ import UserSettings from './pages/public/Settings';
 import Shortlisted from './pages/public/Shortlisted';
 import Blogs from './pages/public/Blogs';
 import BlogDetail from './pages/public/BlogDetail';
+import PrivacyPolicy from './pages/public/PrivacyPolicy';
+import TermsAndConditions from './pages/public/TermsAndConditions';
 
 // Admin Pages
 import Dashboard from './pages/admin/Dashboard';
@@ -136,6 +138,10 @@ function App() {
                 <Route path="blogs/:id" element={<BlogDetail />} />
                 <Route path="register" element={<Register />} />
                 <Route path="contact" element={<Contact />} />
+                <Route path="privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="privacy" element={<PrivacyPolicy />} />
+                <Route path="terms-and-conditions" element={<TermsAndConditions />} />
+                <Route path="terms" element={<TermsAndConditions />} />
                 <Route path="signup" element={<SignUp />} />
                 <Route path="login" element={<PublicLogin />} />
                 

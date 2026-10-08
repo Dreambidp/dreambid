@@ -61,14 +61,14 @@ function PublicLayout() {
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="text-text-secondary hover:text-gold transition-colors text-sm">
+                  <Link to="/privacy-policy" className="text-text-secondary hover:text-gold transition-colors text-sm">
                     Privacy Policy
-                  </a>
+                  </Link>
                 </li>
                 <li>
-                  <a href="#" className="text-text-secondary hover:text-gold transition-colors text-sm">
+                  <Link to="/terms-and-conditions" className="text-text-secondary hover:text-gold transition-colors text-sm">
                     Terms & Conditions
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>

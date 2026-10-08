@@ -242,13 +242,13 @@ function SignUp() {
         {/* Footer */}
         <p className="text-center text-xs text-text-muted mt-6">
           By creating an account, you agree to our{' '}
-          <a href="#" className="text-gold hover:text-gold-hover">
+          <Link to="/terms-and-conditions" className="text-gold hover:text-gold-hover underline">
             Terms of Service
-          </a>{' '}
+          </Link>{' '}
           and{' '}
-          <a href="#" className="text-gold hover:text-gold-hover">
+          <Link to="/privacy-policy" className="text-gold hover:text-gold-hover underline">
             Privacy Policy
-          </a>
+          </Link>
         </p>
       </div>
     </div>

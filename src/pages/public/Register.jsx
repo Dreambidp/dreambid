@@ -441,7 +441,14 @@ function Register() {
                     className="mt-1 w-4 h-4 text-gold border-midnight-600 rounded focus:ring-gold"
                   />
                   <label htmlFor="terms" className="text-sm text-text-secondary leading-tight">
-                    By continuing, you accept the <span className="text-gold font-medium">Terms & Conditions</span> and <span className="text-gold font-medium">Privacy Policy</span>
+                    By continuing, you accept the{' '}
+                    <Link to="/terms-and-conditions" target="_blank" rel="noopener noreferrer" className="text-gold font-medium hover:underline">
+                      Terms & Conditions
+                    </Link>{' '}
+                    and{' '}
+                    <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-gold font-medium hover:underline">
+                      Privacy Policy
+                    </Link>
                   </label>
                 </div>
 

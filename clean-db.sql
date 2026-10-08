@@ -290,20 +290,13 @@ CREATE INDEX idx_notification_tokens_is_active ON notification_tokens(is_active)
 CREATE INDEX idx_notification_tokens_user_active ON notification_tokens(user_id, is_active);
 
 -- ============================================================
--- STEP 4: INSERT FRESH ADMIN USER
+-- STEP 4: ADMIN USER
 -- ============================================================
--- Admin credentials:
--- Email: admin@dreambid.com
--- Phone: 5551234567
--- Password: admin123456 (hashed with bcrypt)
--- 
--- To login:
--- curl -X POST https://your-api.com/api/auth/login \
---   -H "Content-Type: application/json" \
---   -d '{"phone":"5551234567","password":"admin123456"}'
-
-INSERT INTO users (email, password_hash, full_name, phone, role, is_active)
-VALUES ('admin@dreambid.com', '$2a$10$53Do2hAKDxUAGWI8JDWAbu8B4gRgIJR0xM1MGXeyWgJiRYyF4QJlS', 'Admin User', '5551234567', 'admin', true);
+-- Admin user is not seeded with static credentials in this SQL file.
+-- Create the initial admin account through application bootstrap or manual database setup.
+-- Use environment variables ADMIN_EMAIL, ADMIN_PHONE, ADMIN_PASSWORD, and ADMIN_NAME
+-- to configure the admin account before application startup.
+-- ============================================================
 
 -- ============================================================
 -- CLEANUP COMPLETE
@@ -312,7 +305,6 @@ VALUES ('admin@dreambid.com', '$2a$10$53Do2hAKDxUAGWI8JDWAbu8B4gRgIJR0xM1MGXeyWg
 -- All tables have been recreated with:
 -- ✓ 9 tables with proper structure
 -- ✓ 46 performance indexes
--- ✓ 1 default admin user (ready to use)
 -- ✓ All data integrity constraints in place
 --
 -- Next steps:

@@ -1,7 +1,7 @@
 import { Capacitor } from '@capacitor/core';
 
 const DEFAULT_NATIVE_API_URL = 'https://web-production-86c3.up.railway.app/api';
-const DEFAULT_WEB_API_URL = '/api';
+const DEFAULT_WEB_API_URL = 'https://web-production-86c3.up.railway.app/api';
 
 const isNativePlatform = () => {
   return typeof window !== 'undefined' && window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform();

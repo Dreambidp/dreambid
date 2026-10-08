@@ -1086,7 +1086,14 @@ function PropertyDetail() {
                     className="mt-1 w-4 h-4 rounded border-gray-600 bg-gray-800 text-[#dc2626] focus:ring-[#dc2626]"
                   />
                   <label htmlFor="terms" className="text-xs text-gray-400 leading-tight">
-                    I agree to the <span className="text-[#dc2626]">Terms & Conditions</span> and <span className="text-[#dc2626]">Privacy Policy</span>
+                    I agree to the{' '}
+                    <Link to="/terms-and-conditions" target="_blank" rel="noopener noreferrer" className="text-[#dc2626] font-medium hover:underline">
+                      Terms & Conditions
+                    </Link>{' '}
+                    and{' '}
+                    <Link to="/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-[#dc2626] font-medium hover:underline">
+                      Privacy Policy
+                    </Link>
                   </label>
                 </div>
                 <button

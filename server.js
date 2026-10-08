@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import fs from 'fs';
+import bcrypt from 'bcryptjs';
 import pool from './config/database.js';
 import CleanupService from './services/CleanupService.js';
 
@@ -255,23 +256,34 @@ async function initializeDatabase() {
         console.log('✅ Database tables already exist');
       }
       
-      // Verify admin user exists
-      const adminCheck = await pool.query(
-        "SELECT id FROM users WHERE email = 'admin@dreambid.com' LIMIT 1"
-      );
-      
-      if (adminCheck.rows.length === 0) {
-        console.log('📝 Creating admin user...');
-        const adminPasswordHash = '$2a$10$53Do2hAKDxUAGWI8JDWAbu8B4gRgIJR0xM1MGXeyWgJiRYyF4QJlS'; // admin123456
-        await pool.query(
-          `INSERT INTO users (email, password_hash, full_name, phone, role, is_active)
-           VALUES ('admin@dreambid.com', $1, 'Admin User', '5551234567', 'admin', true)`
-        , [adminPasswordHash]);
-        console.log('✅ Admin user created');
+      // Verify admin user exists, using environment-provided admin credentials
+      const adminEmail = process.env.ADMIN_EMAIL;
+      const adminPhone = process.env.ADMIN_PHONE;
+      const adminPassword = process.env.ADMIN_PASSWORD;
+      const adminName = process.env.ADMIN_NAME || 'Admin User';
+
+      if (!adminEmail || !adminPhone || !adminPassword) {
+        console.log('⚠️ Skipping admin bootstrap: ADMIN_EMAIL, ADMIN_PHONE, and ADMIN_PASSWORD must be set.');
       } else {
-        console.log('✅ Admin user already exists');
+        const adminCheck = await pool.query(
+          'SELECT id FROM users WHERE email = $1 LIMIT 1',
+          [adminEmail]
+        );
+
+        if (adminCheck.rows.length === 0) {
+          console.log('📝 Creating admin user...');
+          const adminPasswordHash = await bcrypt.hash(adminPassword, 10);
+          await pool.query(
+            `INSERT INTO users (email, password_hash, full_name, phone, role, is_active)
+             VALUES ($1, $2, $3, $4, 'admin', true)`,
+            [adminEmail, adminPasswordHash, adminName, adminPhone]
+          );
+          console.log('✅ Admin user created');
+        } else {
+          console.log('✅ Admin user already exists');
+        }
       }
-      
+
       return; // Success - exit function
     } catch (error) {
       retries++;
