@@ -77,6 +77,12 @@ function Navbar() {
                 <Link to="/blogs" className="block px-4 py-3 text-text-nav hover:text-gold hover:bg-midnight-700 transition-colors">
                   Blogs
                 </Link>
+                <Link to="/terms-and-conditions" className="block px-4 py-3 text-text-nav hover:text-gold hover:bg-midnight-700 transition-colors">
+                  Terms & Conditions
+                </Link>
+                <Link to="/privacy-policy" className="block px-4 py-3 text-text-nav hover:text-gold hover:bg-midnight-700 transition-colors">
+                  Privacy Policy
+                </Link>
                 <Link to="/" className="block px-4 py-3 text-text-nav hover:text-gold hover:bg-midnight-700 transition-colors last:rounded-b-lg">
                   Home
                 </Link>
@@ -203,6 +209,20 @@ function Navbar() {
                 className="text-text-nav hover:text-gold hover:bg-midnight-800 block px-4 py-3 rounded-btn text-base font-medium transition-colors"
               >
                 Blogs
+              </Link>
+              <Link
+                to="/terms-and-conditions"
+                onClick={() => setMenuOpen(false)}
+                className="text-text-nav hover:text-gold hover:bg-midnight-800 block px-4 py-3 rounded-btn text-base font-medium transition-colors"
+              >
+                Terms & Conditions
+              </Link>
+              <Link
+                to="/privacy-policy"
+                onClick={() => setMenuOpen(false)}
+                className="text-text-nav hover:text-gold hover:bg-midnight-800 block px-4 py-3 rounded-btn text-base font-medium transition-colors"
+              >
+                Privacy Policy
               </Link>
               {isAuthenticated && user ? (
                 <>
