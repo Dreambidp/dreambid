@@ -80,8 +80,8 @@ function PublicLayout() {
                   </a>
                 </li>
                 <li>
-                  <a href="tel:+919999999999" className="text-text-secondary hover:text-gold transition-colors text-sm">
-                    Phone: +91 9999 999 999
+                  <a href="tel:+917428264402" className="text-text-secondary hover:text-gold transition-colors text-sm">
+                    Phone: +91 7428264402
                   </a>
                 </li>
                 <li className="text-text-secondary text-sm">
