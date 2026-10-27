@@ -11,34 +11,16 @@ function Properties() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Refetch data when component mounts or when coming back from property form
-  const { data, isLoading, error, refetch } = useQuery(
+  // Fetch properties with proper caching and quick refresh capability
+  const { data, isLoading, isFetching, error, refetch } = useQuery(
     ['properties', statusFilter],
     () => propertiesAPI.getAll({ status: statusFilter || '', limit: 100 }),
     {
-      staleTime: 0, // Data is immediately stale
-      cacheTime: 5000, // Keep in cache for 5 seconds
-      refetchOnWindowFocus: true,
-      refetchOnReconnect: true,
+      staleTime: 1000 * 30, // 30 seconds
+      cacheTime: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: false,
     }
   );
-
-  // Refetch when component mounts
-  useEffect(() => {
-    refetch();
-  }, []);
-
-  // Refetch when tab becomes visible
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        refetch();
-      }
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [refetch]);
 
   const deleteMutation = useMutation(
     (id) => propertiesAPI.delete(id),
@@ -91,14 +73,29 @@ function Properties() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-text-primary">Properties</h1>
-        <Link
-          to="/admin/properties/new"
-          className="bg-gold px-4 py-2 rounded-lg font-semibold text-midnight-950 hover:bg-gold/90 transition text-sm inline-flex items-center justify-center"
-        >
-          Add Property
-        </Link>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-text-primary">Properties</h1>
+          <p className="text-sm text-text-secondary mt-1">
+            {properties.length} {properties.length === 1 ? 'property' : 'properties'} listed
+          </p>
+        </div>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="flex-1 sm:flex-none border border-midnight-700 bg-midnight-900 px-4 py-2 text-sm font-semibold text-text-primary hover:border-gold hover:text-white rounded-lg transition disabled:opacity-50"
+          >
+            {isFetching ? 'Refreshing...' : 'Refresh'}
+          </button>
+          <Link
+            to="/admin/properties/new"
+            className="flex-1 sm:flex-none bg-gold px-4 py-2 rounded-lg font-semibold text-midnight-950 hover:bg-gold/90 transition text-sm inline-flex items-center justify-center"
+          >
+            Add Property
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

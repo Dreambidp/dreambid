@@ -15,8 +15,8 @@ const isValidImageUrl = (url) => {
   return /^(https?:\/\/|\/)/i.test(url);
 };
 
-const formatPropertyImages = (imagesRows = [], { includeImageData = false } = {}) => {
-  return imagesRows.map((img) => {
+const formatPropertyImages = (imagesRows = [], { includeImageData = false, onlyCoverData = false } = {}) => {
+  return imagesRows.map((img, index) => {
     const formattedImage = {
       id: img.id,
       image_url: img.image_url,
@@ -24,16 +24,23 @@ const formatPropertyImages = (imagesRows = [], { includeImageData = false } = {}
       is_cover: img.is_cover,
     };
 
-    const hasBinaryData = img.image_data;
-    const shouldForceData = hasBinaryData && (!isValidImageUrl(formattedImage.image_url) || formattedImage.image_url === 'data:image/stored');
+    const hasBinaryData = !!img.image_data;
+    const isCoverOrFirst = img.is_cover || index === 0;
+    const isStoredPlaceholder = !isValidImageUrl(formattedImage.image_url) || formattedImage.image_url === 'data:image/stored';
 
-    if ((includeImageData || shouldForceData) && hasBinaryData) {
+    // In list view (onlyCoverData: true), only convert binary data for the cover/first image
+    const shouldLoadBinary = hasBinaryData && (
+      includeImageData ||
+      (onlyCoverData ? (isCoverOrFirst && isStoredPlaceholder) : isStoredPlaceholder)
+    );
+
+    if (shouldLoadBinary) {
       const imageData = Buffer.isBuffer(img.image_data)
         ? `data:${img.image_mime_type || 'image/jpeg'};base64,${img.image_data.toString('base64')}`
         : img.image_data;
 
       formattedImage.image_data = imageData;
-      if (!isValidImageUrl(formattedImage.image_url) || formattedImage.image_url === 'data:image/stored') {
+      if (isStoredPlaceholder) {
         formattedImage.image_url = imageData;
       }
     }
@@ -42,32 +49,28 @@ const formatPropertyImages = (imagesRows = [], { includeImageData = false } = {}
   });
 };
 
-// Helper function to update auction status
-const updateAuctionStatus = async () => {
+// Helper function to update auction status (throttled to avoid redundant UPDATE queries on every read)
+let lastAuctionStatusUpdate = 0;
+const AUCTION_STATUS_THROTTLE_MS = 60 * 1000; // 1 minute
+
+const updateAuctionStatus = async (force = false) => {
+  const nowTime = Date.now();
+  if (!force && nowTime - lastAuctionStatusUpdate < AUCTION_STATUS_THROTTLE_MS) {
+    return;
+  }
+  lastAuctionStatusUpdate = nowTime;
   const now = new Date();
   try {
-    // Check if properties table exists first
-    const tableExists = await pool.query(
-      "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'properties')"
-    );
-
-    if (!tableExists.rows[0].exists) {
-      console.log('⚠️  properties table does not exist yet, skipping auction status update');
-      return;
-    }
-
-    // Update properties whose auction date has passed to expired
     await queryWithRetry(buildAuctionStatusUpdateQuery(), [now]);
   } catch (err) {
-    // Log and continue - don't crash the server if DB is unavailable during dev
     console.warn('updateAuctionStatus: database unavailable or query failed', err && err.message ? err.message : err);
   }
 };
 
 // Run status update on server start and periodically
 // Delay initial run by 5 seconds to allow database initialization
-setTimeout(updateAuctionStatus, 5000);
-setInterval(updateAuctionStatus, 60000); // Every minute
+setTimeout(() => updateAuctionStatus(true), 5000);
+setInterval(() => updateAuctionStatus(true), 60000); // Every minute
 
 // @route   GET /api/properties
 // @desc    Get all properties (with filters)
@@ -244,15 +247,24 @@ router.get('/', [
 
     for (let property of result.rows) {
       const imagesRows = imagesByPropertyId.get(property.id) || [];
-      property.images = formatPropertyImages(imagesRows, { includeImageData });
+      property.images = formatPropertyImages(imagesRows, { includeImageData, onlyCoverData: !includeImageData });
 
       // Set cover image to the marked cover image or first uploaded image if no URL or placeholder.
-      // Keep payloads small by preferring image URLs unless the caller explicitly requests image data.
       if (!property.cover_image_url || property.cover_image_url === 'data:image/stored' || !isValidImageUrl(property.cover_image_url)) {
         const coverImage = property.images.find(img => img.is_cover) || property.images.find(img => img.image_url || img.image_data);
         if (coverImage) {
           property.cover_image_url = coverImage.image_data || coverImage.image_url || null;
         }
+      }
+
+      // If caller didn't explicitly request full image data, keep images array lightweight
+      if (!includeImageData && property.images && property.images.length > 0) {
+        property.images = property.images.map(img => ({
+          id: img.id,
+          image_url: img.image_url && img.image_url !== 'data:image/stored' ? img.image_url : null,
+          image_order: img.image_order,
+          is_cover: img.is_cover
+        }));
       }
     }
 
@@ -453,9 +465,12 @@ router.post('/', authenticate, authorize('admin', 'staff'), uploadImages, [
         }
       }
 
-      // Determine status based on auction_date
-      const now = new Date();
-      const propertyStatus = auctionDate <= now ? 'expired' : 'upcoming';
+      // Determine status: use explicit status if valid, else calculate based on auction_date
+      let propertyStatus = req.body.status;
+      if (!propertyStatus || !['upcoming', 'active', 'expired', 'sold', 'cancelled'].includes(propertyStatus)) {
+        const now = new Date();
+        propertyStatus = auctionDate <= now ? 'expired' : 'upcoming';
+      }
 
       // Create property with retry - use pre-validated numeric values
       const propertyResult = await queryWithRetry(
@@ -708,29 +723,20 @@ router.put('/:id', authenticate, authorize('admin', 'staff'), uploadImages, asyn
       paramCount++;
       updates.push(`auction_date = $${paramCount}`);
       values.push(new Date(auction_date));
-      
-      // Automatically determine status based on auction_date
-      const auctionDate = new Date(auction_date);
-      const now = new Date();
-      const calculatedStatus = auctionDate <= now ? 'expired' : 'upcoming';
-      
-      // Override status with auto-calculated value
-      const statusIndex = updates.findIndex(u => u.includes('status ='));
-      if (statusIndex !== -1) {
-        // Remove existing status update
-        updates.splice(statusIndex, 1);
-        values.splice(statusIndex, 1);
-        paramCount--;
-      }
-      
-      paramCount++;
-      updates.push(`status = $${paramCount}`);
-      values.push(calculatedStatus);
-    } else if (status !== undefined) {
-      // Only use custom status if auction_date is not being updated
+    }
+
+    if (status !== undefined && ['upcoming', 'active', 'expired', 'sold', 'cancelled'].includes(status)) {
       paramCount++;
       updates.push(`status = $${paramCount}`);
       values.push(status);
+    } else if (auction_date !== undefined) {
+      // Automatically determine status based on auction_date ONLY if status was not explicitly provided
+      const auctionDate = new Date(auction_date);
+      const now = new Date();
+      const calculatedStatus = auctionDate <= now ? 'expired' : 'upcoming';
+      paramCount++;
+      updates.push(`status = $${paramCount}`);
+      values.push(calculatedStatus);
     }
     if (is_featured !== undefined) {
       paramCount++;

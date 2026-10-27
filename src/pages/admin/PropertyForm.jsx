@@ -100,6 +100,16 @@ function PropertyForm() {
     if (!formData.reserve_price) errors.push('Reserve Price is required');
     if (!formData.auction_date) errors.push('Auction Date is required');
     if (!formData.emd) errors.push('EMD Price is required');
+
+    // Upcoming status requires auction date in the future
+    if (formData.status === 'upcoming' && formData.auction_date) {
+      const selectedAuctionDate = new Date(formData.auction_date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedAuctionDate < today) {
+        errors.push('Auction Date must be today or in the future for "Upcoming" status. Please pick a future date.');
+      }
+    }
     
     return errors;
   };
@@ -656,13 +666,19 @@ function PropertyForm() {
                   name="status"
                   value={formData.status}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 border border-midnight-600 bg-midnight-700 rounded-md focus:outline-none focus:ring-2 focus:ring-gold"
+                  className="w-full px-3 py-2 border border-midnight-600 bg-midnight-700 rounded-md focus:outline-none focus:ring-2 focus:ring-gold text-white"
                 >
                   <option value="upcoming">Upcoming</option>
+                  <option value="active">Active</option>
                   <option value="expired">Expired</option>
                   <option value="sold">Sold</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
+                {formData.status === 'upcoming' && formData.auction_date && new Date(formData.auction_date) < new Date(new Date().setHours(0,0,0,0)) && (
+                  <p className="text-xs text-amber-400 mt-1">
+                    ⚠️ Auction date is in the past. To mark as Upcoming, please update the Auction Date to a future date.
+                  </p>
+                )}
               </div>
             )}
             <div className="flex items-center">
