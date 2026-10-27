@@ -76,15 +76,15 @@ function Properties() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600">Loading properties...</div>
+        <div className="text-text-secondary">Loading properties...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-        <p className="text-red-800">Error loading properties: {error.message}</p>
+      <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+        <p className="text-red-300">Error loading properties: {error.message}</p>
       </div>
     );
   }
@@ -92,10 +92,10 @@ function Properties() {
   return (
     <div>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Properties</h1>
+        <h1 className="text-3xl font-bold text-text-primary">Properties</h1>
         <Link
           to="/admin/properties/new"
-          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+          className="bg-gold px-4 py-2 rounded-lg font-semibold text-midnight-950 hover:bg-gold/90 transition text-sm inline-flex items-center justify-center"
         >
           Add Property
         </Link>
@@ -106,7 +106,7 @@ function Properties() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+          className="px-4 py-2 bg-midnight-800 border border-midnight-700 text-text-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-gold"
         >
           <option value="">All Status</option>
           <option value="upcoming">Upcoming</option>

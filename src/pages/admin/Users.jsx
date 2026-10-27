@@ -84,13 +84,13 @@ function Users() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Users Management</h1>
-          <p className="text-sm text-gray-500 mt-1">Total users: {total}</p>
+          <h1 className="text-3xl font-bold text-text-primary">Users Management</h1>
+          <p className="text-sm text-text-secondary mt-1">Total users: {total}</p>
         </div>
         <button
           onClick={() => refetch()}
           disabled={isLoading}
-          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="border border-midnight-700 bg-midnight-900 px-4 py-2 text-sm font-semibold text-text-primary hover:border-gold hover:text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -208,7 +208,7 @@ function Users() {
           <div className="bg-midnight-900 border border-midnight-700 rounded-lg shadow-xl max-w-2xl w-full max-h-96 overflow-y-auto">
             <div className="p-6 border-b border-midnight-700">
               <div className="flex justify-between items-center">
-                <h2 className="text-xl font-bold text-text-primary\">User Details</h2>
+                <h2 className="text-xl font-bold text-text-primary">User Details</h2>
                 <button
                   onClick={() => {
                     setShowDetailModal(false);

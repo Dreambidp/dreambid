@@ -75,6 +75,11 @@ function PublicLayout() {
               <h4 className="text-lg font-semibold text-white mb-4">Contact</h4>
               <ul className="space-y-3">
                 <li>
+                  <a href="https://dreambidproperty.com" target="_blank" rel="noopener noreferrer" className="text-text-secondary hover:text-gold transition-colors text-sm">
+                    Website: dreambidproperty.com
+                  </a>
+                </li>
+                <li>
                   <a href="mailto:dreambidproperties01@gmail.com" className="text-text-secondary hover:text-gold transition-colors text-sm">
                     Email: dreambidproperties01@gmail.com
                   </a>

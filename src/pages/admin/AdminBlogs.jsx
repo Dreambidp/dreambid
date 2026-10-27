@@ -286,17 +286,17 @@ function AdminBlogs() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-midnight-950 to-midnight-900 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="space-y-8">
+      <div>
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Blog Management</h1>
+            <h1 className="text-3xl font-bold text-text-primary mb-2">Blog Management</h1>
             <p className="text-text-secondary">Manage all blog posts</p>
           </div>
           <button
             onClick={() => handleOpenForm()}
-            className="w-full md:w-auto bg-gradient-to-r from-gold to-gold-hover text-midnight-950 px-6 py-3 rounded-lg hover:shadow-lg transition font-semibold"
+            className="w-full md:w-auto bg-gold hover:bg-gold/90 text-midnight-950 px-6 py-2.5 rounded-lg transition font-semibold text-sm"
           >
             + Add New Blog
           </button>

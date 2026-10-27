@@ -30,7 +30,11 @@ const PORT = process.env.PORT || 5000;
 
 // CORS Configuration
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'https://dreambidp.netlify.app',
+  process.env.FRONTEND_URL || 'https://dreambidproperty.com',
+  'https://dreambidproperty.com',
+  'http://dreambidproperty.com',
+  'https://www.dreambidproperty.com',
+  'http://www.dreambidproperty.com',
   'https://dreambidp.netlify.app',
   'https://dreambidpp.netlify.app',
   'http://localhost:5173',
@@ -50,6 +54,11 @@ const corsOptions = {
       return callback(null, true);
     }
     
+    // Allow dreambidproperty.com and all subdomains (both http and https)
+    if (origin.includes('dreambidproperty.com')) {
+      return callback(null, true);
+    }
+
     // Allow all *.netlify.app domains
     if (origin.endsWith('.netlify.app')) {
       return callback(null, true);

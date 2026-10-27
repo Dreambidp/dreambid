@@ -30,7 +30,7 @@ function FeaturedProperties() {
     (propertyId) => api.put(`/properties/${propertyId}/toggle-featured`),
     {
       onSuccess: (data) => {
-        const isFeatured = data.data?.is_featured;
+        const isFeatured = data.data?.data?.is_featured ?? data.data?.is_featured;
         toast.success(isFeatured ? 'Property marked as featured' : 'Property removed from featured');
         queryClient.invalidateQueries('featured-properties');
         queryClient.invalidateQueries('all-properties');
@@ -61,11 +61,11 @@ function FeaturedProperties() {
   const isLoading = propertiesLoading || featuredLoading || toggleFeaturedMutation.isLoading;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-midnight-950 to-midnight-900 p-4 md:p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="space-y-8">
+      <div>
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">Featured Properties</h1>
+          <h1 className="text-3xl font-bold text-text-primary mb-2">Featured Properties</h1>
           <p className="text-text-secondary">
             Manage properties displayed on the home page. Currently featuring <span className="text-gold font-semibold">{featuredProperties.length}</span> properties
           </p>

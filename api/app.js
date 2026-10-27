@@ -22,7 +22,11 @@ const app = express();
 
 // CORS Configuration
 const allowedOrigins = [
-  process.env.FRONTEND_URL || 'https://dreambidp.netlify.app',
+  process.env.FRONTEND_URL || 'https://dreambidproperty.com',
+  'https://dreambidproperty.com',
+  'http://dreambidproperty.com',
+  'https://www.dreambidproperty.com',
+  'http://www.dreambidproperty.com',
   'https://dreambidp.netlify.app',
   'https://dreambidpp.netlify.app',
   'https://dreambid.netlify.app',
@@ -41,6 +45,11 @@ const corsOptions = {
     
     // Check exact matches
     if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    // Allow dreambidproperty.com and all subdomains
+    if (origin.includes('dreambidproperty.com')) {
       return callback(null, true);
     }
     

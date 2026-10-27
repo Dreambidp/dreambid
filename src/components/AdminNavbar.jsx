@@ -161,14 +161,14 @@ function AdminNavbar() {
             
             {/* Mobile User Info */}
             {user && (
-              <div className="px-3 py-2 text-xs text-gray-600 border-t border-gray-100 mt-2">
+              <div className="px-3 py-2 text-xs text-text-secondary border-t border-midnight-700 mt-2">
                 {user.full_name} ({user.role})
               </div>
             )}
             
             <button
               onClick={handleLogout}
-              className="text-gray-700 hover:text-red-600 hover:bg-red-50 block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors mt-2"
+              className="text-red-400 hover:text-red-300 hover:bg-red-500/10 block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors mt-2"
             >
               Logout
             </button>
